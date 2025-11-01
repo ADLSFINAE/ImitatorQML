@@ -19,31 +19,34 @@ Rectangle {
         PortItem {
             id: portItem
             height: parent.height
-            width: 356  // ~25%
+            width: 356
         }
 
         ConfigurateItem {
             id: configurate
             height: parent.height
-            width: 330  // ~23%
+            width: 330
         }
 
         MessagesItem {
             id: messages
             height: parent.height
-            width: 164  // ~11%
+            width: 164
         }
 
         AdditionalConfigurateItem {
             id: additionalConfigurate
             height: parent.height
-            width: 280  // ~19%
+            width: 280
+
+            // Передаем ссылку на messagesItem
+            messagesItem: messages
         }
 
         TimeDateItem {
             id: timeDateItem
             height: parent.height
-            width: 100  // ~7%
+            width: 100
         }
     }
 }
