@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>Items/AdditionalConfigurateItem.qml</file>
+        <file>Items/BaseItem.qml</file>
+        <file>Items/ConfigurateItem.qml</file>
+        <file>Items/MessagesItem.qml</file>
+        <file>Items/PortItem.qml</file>
+        <file>ImitatorMainTab.qml</file>
+        <file>Items/TimeDateItem.qml</file>
+        <file>scrollBarArea/BlueStrip.qml</file>
+        <file>scrollBarArea/PageButton.qml</file>
+        <file>scrollBarArea/PageLoader.qml</file>
+        <file>scrollBarArea/PagesListView.qml</file>
+        <file>scrollBarArea/PagesScrollBar.qml</file>
+        <file>TabArea.qml</file>
+    </qresource>
+</RCC>
