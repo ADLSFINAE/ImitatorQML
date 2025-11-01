@@ -14,6 +14,7 @@ ListView {
 
     // Сигнал при клике на страницу
     signal pageClicked(int index)
+    signal pageAddClicked(int index)
 
     model: ListModel {
         id: defaultModel
@@ -21,6 +22,7 @@ ListView {
         ListElement { pageName: "Страница 2"; pageNumber: 1 }
         ListElement { pageName: "Страница 3"; pageNumber: 1 }
         ListElement { pageName: "Страница 4"; pageNumber: 1 }
+        ListElement { pageName: "Страница 5"; pageNumber: 1 }
     }
 
     delegate: PageButton {
@@ -29,16 +31,25 @@ ListView {
 
         onClicked: {
             pagesListView.pageClicked(index)
+
         }
 
         onAddPage: {
+            var currentItem = pagesListView.model.get(index)
+
             var newPageNumber = 1
             for (var i = 0; i < pagesListView.model.count; i++) {
                 if (pagesListView.model.get(i).pageName === pageName) {
                     newPageNumber = Math.max(newPageNumber, pagesListView.model.get(i).pageNumber + 1)
                 }
             }
-            pagesListView.model.insert(index + 1, {"pageName": pageName, "pageNumber": newPageNumber})
+
+            // Создаем копию объекта и меняем pageNumber
+            var itemCopy = Object.assign({}, currentItem)
+            itemCopy.pageNumber = newPageNumber
+
+            pagesListView.model.insert(index + 1, itemCopy)
+            pagesListView.pageAddClicked(index)
         }
 
         onDeletePage: {

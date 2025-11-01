@@ -10,7 +10,8 @@ Rectangle {
     property alias pagesModel: buttonListView.model
     property alias currentPageSource: pageLoader.source
 
-    property var mainWindow: null
+    // Свойство для хранения цвета
+    property color currentPageColor: "blue"
 
     // Компоненты
     PagesListView {
@@ -26,6 +27,10 @@ Rectangle {
 
         onPageClicked: function(index) {
             pageLoader.source = getPageSource(index)
+
+            // Меняем цвет в зависимости от страницы
+            var colors = ["blue", "green", "red", "purple", "orange", "teal"]
+            currentPageColor = colors[index % colors.length]
         }
     }
 
@@ -63,7 +68,9 @@ Rectangle {
             bottom: parent.bottom
             bottomMargin: 10
         }
-        source: "qrc:/Pages/Page1.qml"
+
+        // Передаем текущий цвет в PageLoader
+        pageColor: tabArea.currentPageColor
     }
 
     // Функция для получения источника страницы
