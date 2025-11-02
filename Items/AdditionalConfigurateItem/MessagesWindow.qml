@@ -11,9 +11,20 @@ Window {
     modality: Qt.ApplicationModal
 
     property var selectedMessages: []
+    property var existingPages: []  // Существующие страницы в TabArea
 
     signal saved(var selectedItems)
     signal canceled()
+
+    function initializeWithExistingPages(pages) {
+        existingPages = pages || []
+        // Устанавливаем галочки для уже существующих страниц
+        for (var i = 0; i < messagesModel.count; i++) {
+            var messageName = messagesModel.get(i).name
+            var isChecked = existingPages.indexOf(messageName) !== -1
+            messagesModel.setProperty(i, "checked", isChecked)
+        }
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -91,7 +102,7 @@ Window {
 
                 // Кнопки по центру
                 Row {
-                    //Layout.alignment: Qt.AlignHCenter
+                    Layout.alignment: Qt.AlignHCenter
                     spacing: 10
 
                     Button {

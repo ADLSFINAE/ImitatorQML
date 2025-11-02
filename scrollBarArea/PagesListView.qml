@@ -18,11 +18,6 @@ ListView {
 
     model: ListModel {
         id: defaultModel
-        ListElement { pageName: "Страница 1"; pageNumber: 1 }
-        ListElement { pageName: "Страница 2"; pageNumber: 1 }
-        ListElement { pageName: "Страница 3"; pageNumber: 1 }
-        ListElement { pageName: "Страница 4"; pageNumber: 1 }
-        ListElement { pageName: "Страница 5"; pageNumber: 1 }
     }
 
     delegate: PageButton {

@@ -8,6 +8,7 @@ BaseItem {
 
     // Окно сообщений
     property var messagesWindow: null
+    property var tabArea: null  // Ссылка на TabArea
 
     Row{
         Column{
@@ -113,8 +114,9 @@ BaseItem {
         }
 
         if (messagesWindow) {
-            // Можно установить кастомный список сообщений
-            // messagesWindow.setMessages(["Мое сообщение 1", "Мое сообщение 2", ...])
+            // Передаем текущие страницы в окно для синхронизации
+            var currentPages = getCurrentPagesFromTabArea()
+            messagesWindow.initializeWithExistingPages(currentPages)
             messagesWindow.show()
         }
     }
@@ -122,10 +124,114 @@ BaseItem {
     // Обработчики сигналов окна сообщений
     function onMessagesSaved(selectedItems) {
         console.log("Сохранены выбранные сообщения:", selectedItems)
-        // Здесь можно обработать выбранные сообщения
+        syncPagesWithTabArea(selectedItems)
     }
 
     function onMessagesCanceled() {
         console.log("Диалог сообщений отменен")
+    }
+
+    // Функция для получения текущих страниц из TabArea
+    function getCurrentPagesFromTabArea() {
+        if (!tabArea) {
+            findTabArea()
+        }
+
+        var currentPages = []
+        if (tabArea && tabArea.pagesModel) {
+            for (var i = 0; i < tabArea.pagesModel.count; i++) {
+                currentPages.push(tabArea.pagesModel.get(i).pageName)
+            }
+        }
+        return currentPages
+    }
+
+    // Функция синхронизации страниц с TabArea
+    function syncPagesWithTabArea(selectedItems) {
+        if (!tabArea) {
+            findTabArea()
+        }
+
+        if (tabArea && tabArea.pagesModel) {
+            var selectedSet = new Set(selectedItems)
+            var currentPages = getCurrentPagesFromTabArea()
+
+            // Удаляем страницы, которых нет в выбранных
+            for (var i = tabArea.pagesModel.count - 1; i >= 0; i--) {
+                var pageName = tabArea.pagesModel.get(i).pageName
+                if (!selectedSet.has(pageName)) {
+                    console.log("Удаляем страницу:", pageName)
+                    tabArea.pagesModel.remove(i)
+                }
+            }
+
+            // Добавляем новые выбранные страницы
+            for (var j = 0; j < selectedItems.length; j++) {
+                var newPageName = selectedItems[j]
+                var exists = false
+
+                // Проверяем, есть ли уже такая страница
+                for (var k = 0; k < tabArea.pagesModel.count; k++) {
+                    if (tabArea.pagesModel.get(k).pageName === newPageName) {
+                        exists = true
+                        break
+                    }
+                }
+
+                if (!exists) {
+                    console.log("Добавляем страницу:", newPageName)
+                    tabArea.pagesModel.append({
+                        "pageName": newPageName,
+                        "pageNumber": 1
+                    })
+                }
+            }
+        } else {
+            console.log("TabArea не найден или недоступен")
+        }
+    }
+
+    // Функция поиска TabArea
+    function findTabArea() {
+        var parentItem = parent
+        while (parentItem) {
+            if (parentItem.objectName === "tabArea" || parentItem.hasOwnProperty("pagesModel")) {
+                tabArea = parentItem
+                console.log("TabArea найден")
+                break
+            }
+            parentItem = parentItem.parent
+        }
+
+        // Альтернативный поиск по id
+        if (!tabArea) {
+            var root = parent
+            while (root && root.parent) {
+                root = root.parent
+            }
+            tabArea = findChild(root, "tabArea")
+        }
+    }
+
+    // Вспомогательная функция для поиска дочерних элементов
+    function findChild(item, objectName) {
+        if (item.objectName === objectName) {
+            return item
+        }
+
+        for (var i = 0; i < item.children.length; i++) {
+            var child = item.children[i]
+            var result = findChild(child, objectName)
+            if (result) {
+                return result
+            }
+        }
+
+        return null
+    }
+
+    // Инициализация при создании компонента
+    Component.onCompleted: {
+        findTabArea()
     }
 }

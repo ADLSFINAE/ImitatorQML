@@ -4,6 +4,7 @@ import "scrollBarArea"
 
 Rectangle {
     id: tabArea
+    objectName: "tabArea"  // Добавь эту строку для поиска
     color: "#2D2D30"
 
     // Свойства для настройки
