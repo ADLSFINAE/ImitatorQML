@@ -22,7 +22,6 @@ Rectangle {
 
     Column {
         anchors.fill: parent
-        anchors.margins: 5
 
         // Основной контент
         Item {

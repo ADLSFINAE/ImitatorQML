@@ -15,5 +15,7 @@
         <file>scrollBarArea/PagesScrollBar.qml</file>
         <file>TabArea.qml</file>
         <file>Items/MessageSquare.qml</file>
+        <file>Items/PortItem/CustomComboBox.qml</file>
+        <file>Items/PortItem/PortRow.qml</file>
     </qresource>
 </RCC>

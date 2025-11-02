@@ -5,7 +5,7 @@ Rectangle {
     id: square
     objectName: "messageSquare"
 
-    width: 54
+    width: 64
     height: 21
     color: "white"
     border.color: "#404040"

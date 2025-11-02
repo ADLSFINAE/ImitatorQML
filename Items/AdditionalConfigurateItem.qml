@@ -9,41 +9,82 @@ BaseItem {
     // Ссылка на MessagesItem (можно передать через mainWindow или найти по id)
     property var messagesItem: null
 
-    Column {
-        anchors.centerIn: parent
-        spacing: 10
+    Row {
 
-        Button {
-            id: addSquareButton
-            text: "Добавить квадрат"
-            onClicked: {
-                console.log("Добавляем квадрат в MessagesItem")
-                if (messagesItem) {
-                    messagesItem.addSquare()
-                } else {
-                    console.log("MessagesItem не установлен")
-                }
+        // Первый столбец - 3 чекбокса
+        Column {
+            width: 100  // Уменьшил ширину столбца
+
+            CheckBox {
+                width: parent.width
+                text: "Опция 1"
+                checked: true
+                font.pointSize: 8
+                indicator.width: 12  // Маленький квадратик
+                indicator.height: 12
+            }
+            CheckBox {
+                width: parent.width
+                text: "Опция 2"
+                checked: false
+                font.pointSize: 8
+                indicator.width: 12
+                indicator.height: 12
+            }
+            CheckBox {
+                width: parent.width
+                text: "Опция 3"
+                checked: true
+                font.pointSize: 8
+                indicator.width: 12
+                indicator.height: 12
             }
         }
 
-        Button {
-            text: "Очистить все"
-            onClicked: {
-                if (messagesItem) {
-                    messagesItem.clearSquares()
+        // Второй столбец - 2 кнопки и текст
+        Column {
+            width: 100  // Уменьшил ширину столбца
+            anchors.centerIn: verticalCenter
+            Button {
+                id: addSquareButton
+                width: parent.width
+                text: "Добавить"
+                height: 20  // Уменьшил высоту
+                font.pointSize: 8
+                onClicked: {
+                    console.log("Добавляем квадрат в MessagesItem")
+                    if (messagesItem) {
+                        messagesItem.addSquare()
+                    } else {
+                        console.log("MessagesItem не установлен")
+                    }
                 }
             }
-        }
 
-        Text {
-            text: messagesItem ? "Квадратов: " + messagesItem.squareCount : "Не подключено"
-            color: "white"
+            Button {
+                width: parent.width
+                text: "Очистить"
+                height: 20  // Уменьшил высоту
+                font.pointSize: 8
+                onClicked: {
+                    if (messagesItem) {
+                        messagesItem.clearSquares()
+                    }
+                }
+            }
+
+            Text {
+                width: parent.width
+                text: messagesItem ? "Квадратов: " + messagesItem.squareCount : "Не подключено"
+                color: "white"
+                font.pointSize: 8
+                horizontalAlignment: Text.AlignLeft
+            }
         }
     }
 
     // Инициализация после загрузки компонента
     Component.onCompleted: {
-        // Находим MessagesItem (нужно будет настроить в зависимости от вашей структуры)
         findMessagesItem()
     }
 
