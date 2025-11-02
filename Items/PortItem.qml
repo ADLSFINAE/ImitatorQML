@@ -7,13 +7,11 @@ BaseItem {
     id: portItem
     itemTitle: "Порты"
 
-    // Свойство для хранения количества строк
     property int rowCount: 0
 
     Row {
         anchors.fill: parent
 
-        // Левая колонка с кнопками
         Column {
             width: 20
             height: parent.height
@@ -30,7 +28,6 @@ BaseItem {
                     source: "qrc:/Images/add.png"
                 }
                 onClicked: {
-                    // Добавляем новую строку
                     comboBoxModel.append({
                         "portIndex": -1,
                         "baudRateIndex": -1,
@@ -53,7 +50,6 @@ BaseItem {
                     source: "qrc:/Images/cancel.png"
                 }
                 onClicked: {
-                    // Удаляем последнюю строку
                     if (comboBoxModel.count > 0) {
                         comboBoxModel.remove(comboBoxModel.count - 1)
                         rowCount = comboBoxModel.count
@@ -61,14 +57,12 @@ BaseItem {
                 }
             }
 
-            // Spacer для заполнения оставшегося пространства
             Item {
                 width: 20
                 height: parent.height - 40
             }
         }
 
-        // Правая колонка с прокручиваемой областью
         Column {
             width: portItem.width - 20
             height: parent.height
@@ -78,13 +72,11 @@ BaseItem {
                 height: 70
                 color: "#252525"
 
-                // Модель для хранения комбобоксов
                 ListModel {
                     id: comboBoxModel
                 }
 
                 ScrollView {
-                    id: scrollView
                     anchors.fill: parent
                     anchors.margins: 5
 
@@ -96,16 +88,32 @@ BaseItem {
 
                         delegate: PortRow {
                             rowIndex: index
-                            comboBoxModel: comboBoxModel
                             portIndex: model.portIndex
                             baudRateIndex: model.baudRateIndex
                             baudRateEnabled: model.baudRateEnabled
                             deleteEnabled: model.deleteEnabled
 
-                            onPortIndexChanged: comboBoxModel.setProperty(index, "portIndex", portIndex)
-                            onBaudRateIndexChanged: comboBoxModel.setProperty(index, "baudRateIndex", baudRateIndex)
-                            onBaudRateEnabledChanged: comboBoxModel.setProperty(index, "baudRateEnabled", baudRateEnabled)
-                            onDeleteEnabledChanged: comboBoxModel.setProperty(index, "deleteEnabled", deleteEnabled)
+                            onRemoveClicked: {
+                                console.log("Removing index:", index)
+                                if (index >= 0 && index < comboBoxModel.count) {
+                                    comboBoxModel.remove(index)
+                                    rowCount = comboBoxModel.count
+                                }
+                            }
+
+                            onPortChanged: {
+                                if (index >= 0 && index < comboBoxModel.count) {
+                                    comboBoxModel.setProperty(index, "portIndex", portIndex)
+                                    comboBoxModel.setProperty(index, "baudRateEnabled", true)
+                                    comboBoxModel.setProperty(index, "deleteEnabled", true)
+                                }
+                            }
+
+                            onBaudRateChanged: {
+                                if (index >= 0 && index < comboBoxModel.count) {
+                                    comboBoxModel.setProperty(index, "baudRateIndex", baudRateIndex)
+                                }
+                            }
                         }
                     }
                 }
@@ -113,7 +121,6 @@ BaseItem {
         }
     }
 
-    // Инициализация - добавляем первую строку при создании
     Component.onCompleted: {
         comboBoxModel.append({
             "portIndex": -1,

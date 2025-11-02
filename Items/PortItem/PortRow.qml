@@ -10,12 +10,15 @@ Rectangle {
 
     // Свойства, которые передаются из родительского компонента
     property int rowIndex
-    property var comboBoxModel
-
     property int portIndex: -1
     property int baudRateIndex: -1
     property bool baudRateEnabled: false
     property bool deleteEnabled: false
+
+    // Сигналы для общения с родителем
+    signal removeClicked(int index)
+    signal portChanged(int index, int portIndex)
+    signal baudRateChanged(int index, int baudRateIndex)
 
     Row {
         anchors.fill: parent
@@ -29,7 +32,6 @@ Rectangle {
             height: 30
             currentIndex: -1
 
-            // Модель с заглушкой
             model: {
                 var ports = ["Выберите COM-порт"]
                 if (backend && backend.availablePorts) {
@@ -47,22 +49,18 @@ Rectangle {
 
             onCurrentIndexChanged: {
                 if (currentIndex > 0) {
-                    // Выбран реальный порт - разблокируем элементы
-                    portRow.portIndex = currentIndex - 1
                     portRow.baudRateEnabled = true
                     portRow.deleteEnabled = true
+                    portRow.portChanged(portRow.rowIndex, currentIndex - 1)
                 } else {
-                    // Сброшен выбор - блокируем элементы
-                    portRow.portIndex = -1
                     portRow.baudRateEnabled = false
                     portRow.deleteEnabled = false
-                    // Сбрасываем выбор скорости
                     baudRateCombo.currentIndex = -1
+                    portRow.portChanged(portRow.rowIndex, -1)
                 }
             }
 
             Component.onCompleted: {
-                // Восстанавливаем состояние если было сохранено
                 if (portRow.portIndex !== -1) {
                     currentIndex = portRow.portIndex + 1
                 } else {
@@ -89,7 +87,8 @@ Rectangle {
             }
 
             onClicked: {
-                portRow.comboBoxModel.remove(portRow.rowIndex)
+                console.log("Remove button clicked, rowIndex:", portRow.rowIndex)
+                portRow.removeClicked(portRow.rowIndex)
             }
         }
 
@@ -102,7 +101,6 @@ Rectangle {
             opacity: enabled ? 1.0 : 0.5
             currentIndex: -1
 
-            // Модель с заглушкой
             model: {
                 var rates = ["Выберите скорость бит/c"]
                 if (backend && backend.getBaudRates) {
@@ -120,16 +118,13 @@ Rectangle {
 
             onCurrentIndexChanged: {
                 if (currentIndex > 0) {
-                    // Выбрана реальная скорость
-                    portRow.baudRateIndex = currentIndex - 1
+                    portRow.baudRateChanged(portRow.rowIndex, currentIndex - 1)
                 } else {
-                    // Сброшен выбор
-                    portRow.baudRateIndex = -1
+                    portRow.baudRateChanged(portRow.rowIndex, -1)
                 }
             }
 
             Component.onCompleted: {
-                // Восстанавливаем состояние если было сохранено
                 if (portRow.baudRateIndex !== -1 && portRow.baudRateEnabled) {
                     currentIndex = portRow.baudRateIndex + 1
                 } else {
