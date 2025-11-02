@@ -38,9 +38,6 @@ Rectangle {
             id: additionalConfigurate
             height: parent.height
             width: 280
-
-            // Передаем ссылку на messagesItem
-            messagesItem: messages
         }
 
         TimeDateItem {

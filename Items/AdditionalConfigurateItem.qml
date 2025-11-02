@@ -6,102 +6,126 @@ BaseItem {
     id: additionalConfigurateItem
     itemTitle: "Дополнительно"
 
-    // Ссылка на MessagesItem (можно передать через mainWindow или найти по id)
-    property var messagesItem: null
+    // Окно сообщений
+    property var messagesWindow: null
 
-    Row {
+    Row{
+        Column{
+            width: 160
+            height: 70
+            spacing: 3
+            Row {
+                spacing: -5
+                layoutDirection: Qt.LeftToRight
+                height: 20
 
-        // Первый столбец - 3 чекбокса
-        Column {
-            width: 100  // Уменьшил ширину столбца
+                CheckBox {
+                    indicator.width: 15
+                    indicator.height: 15
+                    anchors.verticalCenter: parent.verticalCenter
+                }
 
-            CheckBox {
-                width: parent.width
-                text: "Опция 1"
-                checked: true
-                font.pointSize: 8
-                indicator.width: 12  // Маленький квадратик
-                indicator.height: 12
+                Text {
+                    text: "dasdas 1"
+                    color: "white"
+                    anchors.verticalCenter: parent.verticalCenter
+                }
             }
-            CheckBox {
-                width: parent.width
-                text: "Опция 2"
-                checked: false
-                font.pointSize: 8
-                indicator.width: 12
-                indicator.height: 12
+            Row {
+                spacing: -5
+                layoutDirection: Qt.LeftToRight
+                height: 20
+
+                CheckBox {
+                    indicator.width: 15
+                    indicator.height: 15
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Text {
+                    text: "dasdas 2"
+                    color: "white"
+                    anchors.verticalCenter: parent.verticalCenter
+                }
             }
-            CheckBox {
-                width: parent.width
-                text: "Опция 3"
-                checked: true
-                font.pointSize: 8
-                indicator.width: 12
-                indicator.height: 12
+            Row {
+                spacing: -5
+                layoutDirection: Qt.LeftToRight
+                height: 20
+
+                CheckBox {
+                    indicator.width: 15
+                    indicator.height: 15
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Text {
+                    text: "dasdas 3"
+                    color: "white"
+                    anchors.verticalCenter: parent.verticalCenter
+                }
             }
         }
 
-        // Второй столбец - 2 кнопки и текст
         Column {
-            width: 100  // Уменьшил ширину столбца
-            anchors.centerIn: verticalCenter
-            Button {
-                id: addSquareButton
-                width: parent.width
-                text: "Добавить"
-                height: 20  // Уменьшил высоту
-                font.pointSize: 8
-                onClicked: {
-                    console.log("Добавляем квадрат в MessagesItem")
-                    if (messagesItem) {
-                        messagesItem.addSquare()
-                    } else {
-                        console.log("MessagesItem не установлен")
-                    }
-                }
-            }
+            width: 120
+            height: 70
+            anchors.verticalCenter: parent.verticalCenter
 
             Button {
-                width: parent.width
-                text: "Очистить"
-                height: 20  // Уменьшил высоту
-                font.pointSize: 8
+                id: hammerButton
+                width: 50
+                height: 50
+                background: Rectangle {
+                    color: "transparent"
+                }
+
+                Image {
+                    anchors.centerIn: parent
+                    height: 50
+                    width: 50
+                    source: "qrc:/Images/hammer.png"
+                }
+
                 onClicked: {
-                    if (messagesItem) {
-                        messagesItem.clearSquares()
-                    }
+                    console.log("Открываем окно сообщений")
+                    openMessagesWindow()
                 }
             }
-
             Text {
-                width: parent.width
-                text: messagesItem ? "Квадратов: " + messagesItem.squareCount : "Не подключено"
+                text: "Виджетс"
                 color: "white"
-                font.pointSize: 8
-                horizontalAlignment: Text.AlignLeft
+                anchors.horizontalCenter: parent.horizontalCenter
+                font.pointSize: 10
             }
         }
     }
 
-    // Инициализация после загрузки компонента
-    Component.onCompleted: {
-        findMessagesItem()
+    // Функция открытия окна сообщений
+    function openMessagesWindow() {
+        if (!messagesWindow) {
+            var component = Qt.createComponent("qrc:/Items/AdditionalConfigurateItem/MessagesWindow.qml")
+            if (component.status === Component.Ready) {
+                messagesWindow = component.createObject(additionalConfigurateItem)
+                messagesWindow.saved.connect(onMessagesSaved)
+                messagesWindow.canceled.connect(onMessagesCanceled)
+            }
+        }
+
+        if (messagesWindow) {
+            // Можно установить кастомный список сообщений
+            // messagesWindow.setMessages(["Мое сообщение 1", "Мое сообщение 2", ...])
+            messagesWindow.show()
+        }
     }
 
-    function findMessagesItem() {
-        // Ищем MessagesItem в родительских элементах
-        var parentItem = parent
-        while (parentItem) {
-            if (parentItem.hasOwnProperty("messages")) {
-                messagesItem = parentItem.messages
-                break
-            }
-            parentItem = parentItem.parent
-        }
+    // Обработчики сигналов окна сообщений
+    function onMessagesSaved(selectedItems) {
+        console.log("Сохранены выбранные сообщения:", selectedItems)
+        // Здесь можно обработать выбранные сообщения
+    }
 
-        // Альтернативный способ - через mainWindow если он есть
-        if (!messagesItem && typeof mainWindow !== "undefined" && mainWindow) {
-            // Предполагаем, что в mainWindow есть ссылка на messagesItem
-        }
+    function onMessagesCanceled() {
+        console.log("Диалог сообщений отменен")
     }
 }
