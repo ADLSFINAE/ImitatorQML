@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>components/PageTabs/PageTabBar.qml</file>
+        <file>components/PageTabs/PageTabDelegate.qml</file>
+        <file>components/PageTabs/PageTabScrollBar.qml</file>
+        <file>components/ContentArea.qml</file>
+        <file>components/Header.qml</file>
+        <file>components/StatusBar.qml</file>
+        <file>components/TabBar.qml</file>
+        <file>dialogs/MessagesDialog.qml</file>
+        <file>pages/MainTab.qml</file>
+    </qresource>
+</RCC>

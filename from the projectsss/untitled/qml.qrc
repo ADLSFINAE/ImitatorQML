@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>example.json</file>
+        <file>PageContent.qml</file>
+        <file>PageManagerWindow.qml</file>
+    </qresource>
+</RCC>

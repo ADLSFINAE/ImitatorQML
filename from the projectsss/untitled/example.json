@@ -1,0 +1,52 @@
+[
+    {
+        "pageId": "page1",
+        "pageName": "Страница 1 - Форма ввода",
+        "items": [
+            {
+                "type": "textfield",
+                "name": "firstName",
+                "label": "Имя",
+                "default": "Иван"
+            },
+            {
+                "type": "textfield",
+                "name": "lastName",
+                "label": "Фамилия",
+                "default": "Петров"
+            },
+            {
+                "type": "textfield",
+                "name": "email",
+                "label": "Email",
+                "default": "test@example.com"
+            }
+        ]
+    },
+    {
+        "pageId": "page2",
+        "pageName": "Страница 2 - Настройки",
+        "items": [
+            {
+                "type": "combobox",
+                "name": "language",
+                "label": "Язык",
+                "options": ["Русский", "Английский", "Немецкий"],
+                "default": "Русский"
+            },
+            {
+                "type": "combobox",
+                "name": "theme",
+                "label": "Тема",
+                "options": ["Светлая", "Темная", "Авто"],
+                "default": "Светлая"
+            },
+            {
+                "type": "checkbox",
+                "name": "notifications",
+                "label": "Включить уведомления",
+                "default": "true"
+            }
+        ]
+    }
+]
