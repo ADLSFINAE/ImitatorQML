@@ -17,5 +17,14 @@
         <file>Items/PortItem/CustomComboBox.qml</file>
         <file>Items/PortItem/PortRow.qml</file>
         <file>Items/AdditionalConfigurateItem/MessagesWindow.qml</file>
+        <file>Items/JsonComponents/CheckBoxComponent.qml</file>
+        <file>Items/JsonComponents/ComboBoxComponent.qml</file>
+        <file>Items/JsonComponents/TextFieldComponent.qml</file>
+        <file>Items/JsonContentView.qml</file>
+        <file>scrollBarArea/GridLayoutContainer.qml</file>
+        <file>scrollBarArea/GroupComponent.qml</file>
+        <file>scrollBarArea/SingleItemComponent.qml</file>
+        <file>scrollBarArea/GroupItem.qml</file>
+        <file>scrollBarArea/SingleItem.qml</file>
     </qresource>
 </RCC>

@@ -14,10 +14,12 @@ ListView {
 
     // Сигнал при клике на страницу
     signal pageClicked(int index)
-    signal pageAddClicked(int index)
+    signal pageAddClicked(int index, string newPageName)
+    signal pageDeleteClicked(int index)
 
     model: ListModel {
         id: defaultModel
+        // Начинаем с пустого списка страниц
     }
 
     delegate: PageButton {
@@ -26,29 +28,29 @@ ListView {
 
         onClicked: {
             pagesListView.pageClicked(index)
-
         }
 
         onAddPage: {
             var currentItem = pagesListView.model.get(index)
 
-            var newPageNumber = 1
-            for (var i = 0; i < pagesListView.model.count; i++) {
-                if (pagesListView.model.get(i).pageName === pageName) {
-                    newPageNumber = Math.max(newPageNumber, pagesListView.model.get(i).pageNumber + 1)
-                }
+            // Получаем полное имя текущей страницы
+            var currentFullName = currentItem.pageName + (currentItem.pageNumber > 1 ? " - " + currentItem.pageNumber : "")
+
+            // Генерируем имя для новой страницы через tabArea
+            var newPageName = tabArea.generateCopyName(currentFullName)
+
+            // Создаем новую страницу с базовым именем и номером 1
+            var itemCopy = {
+                pageName: newPageName,
+                pageNumber: 1
             }
 
-            // Создаем копию объекта и меняем pageNumber
-            var itemCopy = Object.assign({}, currentItem)
-            itemCopy.pageNumber = newPageNumber
-
             pagesListView.model.insert(index + 1, itemCopy)
-            pagesListView.pageAddClicked(index)
+            pagesListView.pageAddClicked(index, newPageName)
         }
 
         onDeletePage: {
-            pagesListView.model.remove(index)
+            pagesListView.pageDeleteClicked(index)
         }
     }
 

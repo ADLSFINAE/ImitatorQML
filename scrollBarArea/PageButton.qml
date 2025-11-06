@@ -15,7 +15,7 @@ Rectangle {
     signal addPage()
     signal deletePage()
 
-    width: pageText.contentWidth + 25
+    width: pageText.contentWidth + 35  // Ширина для двух кнопок
 
     MouseArea {
         anchors.fill: parent
@@ -37,6 +37,7 @@ Rectangle {
         }
     }
 
+    // Кнопка добавления (зеленая +)
     Rectangle {
         id: addButton
         width: 9
@@ -44,7 +45,7 @@ Rectangle {
         color: "green"
         radius: 1
         anchors {
-            right: parent.right
+            right: deleteButton.left
             rightMargin: 2
             top: parent.top
             topMargin: 2
@@ -65,6 +66,7 @@ Rectangle {
         }
     }
 
+    // Кнопка удаления (красная ×) - теперь удаляет всю страницу
     Rectangle {
         id: deleteButton
         width: 9
@@ -74,12 +76,12 @@ Rectangle {
         anchors {
             right: parent.right
             rightMargin: 2
-            top: addButton.bottom
+            top: parent.top
             topMargin: 2
         }
 
         Text {
-            text: "-"
+            text: "×"
             anchors.centerIn: parent
             font.pointSize: 6
             color: "white"

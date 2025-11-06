@@ -8,10 +8,13 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
+        source/JsonMessagesParser/jsonmodel.cpp \
+        source/JsonMessagesParser/uimodel.cpp \
         source/PortItem/backend.cpp
 
 RESOURCES += qml.qrc \
-    Images.qrc
+    Images.qrc \
+    JsonDocuments.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -25,6 +28,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    source/JsonMessagesParser/jsonmodel.h \
+    source/JsonMessagesParser/uimodel.h \
     source/PortItem/backend.h
 
 DISTFILES +=

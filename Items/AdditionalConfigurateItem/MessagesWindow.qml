@@ -59,14 +59,14 @@ Window {
                     id: messagesList
                     model: ListModel {
                         id: messagesModel
-                        ListElement { name: "Сообщение 1"; checked: false }
-                        ListElement { name: "Сообщение 2"; checked: false }
-                        ListElement { name: "Сообщение 3"; checked: false }
-                        ListElement { name: "Сообщение 4"; checked: false }
-                        ListElement { name: "Сообщение 5"; checked: false }
-                        ListElement { name: "Сообщение 6"; checked: false }
-                        ListElement { name: "Сообщение 7"; checked: false }
-                        ListElement { name: "Сообщение 8"; checked: false }
+                        ListElement { name: "Страница 1"; checked: false }
+                        ListElement { name: "Страница 2"; checked: false }
+                        ListElement { name: "Страница 3"; checked: false }
+                        ListElement { name: "Страница 4"; checked: false }
+                        ListElement { name: "Страница 5"; checked: false }
+                        ListElement { name: "Страница 6"; checked: false }
+                        ListElement { name: "Страница 7"; checked: false }
+                        ListElement { name: "Страница 8"; checked: false }
                     }
 
                     delegate: Rectangle {

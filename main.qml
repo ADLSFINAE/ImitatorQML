@@ -39,15 +39,20 @@ Window {
             id: mainTab
             title: "Главная"
             active: true
-            Column{
-                Rectangle{
+
+            Column {
+                anchors.fill: parent
+
+                Rectangle {
                     width: parent.width
                     height: 100
-                    color: "black"
+                    color: "#2D2D30"
+
                     ImitatorMainTab {
-                        mainWindow: mainWindow
+                        anchors.fill: parent
                     }
                 }
+
                 Rectangle {
                     width: parent.width
                     height: parent.height - 100
@@ -59,7 +64,6 @@ Window {
                     }
                 }
             }
-
         }
 
         style: TabViewStyle {

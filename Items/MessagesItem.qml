@@ -1,25 +1,29 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQml 2.12
 
 BaseItem {
     id: messagesItem
     itemTitle: "Сообщения"
-    objectName: "messagesItem"  // Для поиска
+    objectName: "messagesItem"
 
     // Модель для хранения сообщений
     property alias messagesModel: messagesListModel
+    property var additionalConfigurateItem: null  // Ссылка на AdditionalConfigurateItem
+
+    // Сигнал при изменении состояния чекбокса
+    signal messageToggled(string messageText, bool checked)
 
     // Прокручиваемая область с сообщениями
     ScrollView {
-        anchors.fill: parent
+        width: messagesItem.width
+        height: 70
         clip: true
 
         ListView {
             id: messagesListView
             model: ListModel {
                 id: messagesListModel
-                // Начальные сообщения (можно оставить пустым)
-                // ListElement { text: "Пример сообщения"; checked: true }
             }
 
             delegate: Rectangle {
@@ -35,6 +39,8 @@ BaseItem {
                         indicator.height: 10
                         onCheckedChanged: {
                             messagesListModel.setProperty(index, "checked", checked)
+                            // Отправляем сигнал о изменении состояния
+                            messagesItem.messageToggled(model.text, checked)
                         }
                     }
 
@@ -49,7 +55,7 @@ BaseItem {
         }
     }
 
-    // Функция для добавления сообщения (можно вызывать извне)
+    // Функция для добавления сообщения
     function addMessage(text) {
         messagesListModel.append({
             "text": text,
@@ -85,6 +91,23 @@ BaseItem {
             }
         }
         return selected
+    }
+
+    // Инициализация связи с AdditionalConfigurateItem
+    Component.onCompleted: {
+        findAdditionalConfigurateItem()
+    }
+
+    function findAdditionalConfigurateItem() {
+        var parentItem = parent
+        while (parentItem) {
+            if (parentItem.objectName === "additionalConfigurateItem" || parentItem.hasOwnProperty("messagesWindow")) {
+                additionalConfigurateItem = parentItem
+                console.log("AdditionalConfigurateItem найден для MessageItem")
+                break
+            }
+            parentItem = parentItem.parent
+        }
     }
 }
 
