@@ -5,7 +5,6 @@ Rectangle {
     id: pageButton
     height: 23
     color: "lightgray"
-    radius: 3
 
     property string pageName: ""
     property int pageNumber: 1
@@ -43,7 +42,6 @@ Rectangle {
         width: 9
         height: 9
         color: "green"
-        radius: 1
         anchors {
             right: deleteButton.left
             rightMargin: 2
@@ -72,7 +70,6 @@ Rectangle {
         width: 9
         height: 9
         color: "red"
-        radius: 1
         anchors {
             right: parent.right
             rightMargin: 2

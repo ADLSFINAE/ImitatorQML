@@ -1,38 +1,55 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQml 2.12
+import "../Items/JsonComponents"
 
 Rectangle {
     id: groupContainer
     property var groupData: null
     property bool groupEnabled: groupData && groupData.enabled !== undefined ? groupData.enabled : true
+    property real cellWidth: 75
+    property real cellHeight: 60
 
-    color: "#2A2A2A"
-    border.color: groupEnabled ? "#404040" : "#303030"
+    color: "transparent"
+    border.color: "#00CED1"
     border.width: 1
-    radius: 4
+    radius: 3
+
+    // Размеры рассчитываются исходя из количества элементов
+    width: calculateGroupWidth()
+    height: calculateGroupHeight()
+
+    function calculateGroupWidth() {
+        if (!groupData || !groupData.items) return cellWidth * 2;
+
+        var itemCount = groupData.items.length;
+        var spacing = 5; // отступ между элементами
+        var margins = 10; // внутренние отступы группы
+
+        // Ширина = (количество элементов * ширина элемента) + отступы
+        return (itemCount * cellWidth) + ((itemCount - 1) * spacing) + margins;
+    }
+
+    function calculateGroupHeight() {
+        var checkboxHeight = 16;
+        var spacing = 5;
+        var margins = 10;
+
+        return checkboxHeight + cellHeight + spacing + margins;
+    }
 
     Column {
         anchors.fill: parent
-        anchors.margins: 8
-        spacing: 6
+        anchors.margins: 5
+        spacing: 5
 
-        // Заголовок группы
-        CheckBox {
+        // Кастомный чекбокс для всей группы
+        CustomCheckBox {
             id: groupCheckBox
             width: parent.width
-            height: 25
+            height: 16
             checked: groupContainer.groupEnabled
             text: groupData ? (groupData.label || groupData.name) : "Группа"
-
-            contentItem: Text {
-                text: groupCheckBox.text
-                color: groupCheckBox.checked ? "white" : "#888888"
-                font.pointSize: 10
-                font.bold: true
-                verticalAlignment: Text.AlignVCenter
-                leftPadding: groupCheckBox.indicator.width + 8
-            }
 
             onCheckedChanged: {
                 if (groupData) {
@@ -42,55 +59,80 @@ Rectangle {
             }
         }
 
-        // Разделитель
+        // Внутренний контейнер для всех элементов группы
         Rectangle {
+            id: innerGroupContainer
             width: parent.width
-            height: 1
-            color: groupCheckBox.checked ? "#404040" : "#2A2A2A"
-        }
+            height: parent.height - groupCheckBox.height - parent.spacing
+            color: "#1A1A1A"
+            border.color: groupContainer.groupEnabled ? "#404040" : "#303030"
+            border.width: 1
+            radius: 2
+            enabled: groupContainer.groupEnabled
+            opacity: enabled ? 1.0 : 0.5
 
-        // Элементы группы
-        Column {
-            width: parent.width
-            height: parent.height - groupCheckBox.height - 10
-            spacing: 6
+            Row {
+                id: itemsFlow
+                anchors.fill: parent
+                anchors.margins: 5
+                spacing: 5
 
-            Repeater {
-                model: groupData ? (groupData.items || []) : []
+                Repeater {
+                    model: groupData ? (groupData.items || []) : []
 
-                delegate: Item {
-                    width: parent.width
-                    height: 40
+                    delegate: Rectangle {
+                        id: groupItemContainer
+                        width: cellWidth
+                        height: cellHeight
+                        color: "transparent"
 
-                    Column {
-                        width: parent.width
-                        spacing: 2
+                        // Внутренний контейнер для элемента
+                        Rectangle {
+                            id: itemInnerContainer
+                            anchors.fill: parent
+                            color: "#2A2A2A"
+                            border.color: "#505050"
+                            border.width: 1
+                            radius: 2
 
-                        // Элемент управления
-                        Loader {
-                            id: fieldLoader
-                            width: parent.width
-                            height: 25
-                            sourceComponent: getFieldComponent(modelData.type)
-                            enabled: groupContainer.groupEnabled
-                            opacity: groupContainer.groupEnabled ? 1.0 : 0.5
+                            Loader {
+                                id: fieldLoader
+                                anchors.fill: parent
+                                anchors.margins: 2
+                                sourceComponent: getFieldComponent(modelData.type)
 
-                            onLoaded: {
-                                if (item) {
-                                    item.fieldData = modelData
+                                onLoaded: {
+                                    if (item) {
+                                        item.fieldName = modelData ? modelData.name : ""
+                                        item.fieldLabel = modelData ? (modelData.label || modelData.name) : ""
+                                        item.fieldDefault = modelData ? (modelData.default || "") : ""
+                                        item.pageName = modelData.pageName || "Unknown Page"
+
+                                        // Передаем опции только для комбобоксов и радиокнопок
+                                        if (modelData.type === "combobox" || modelData.type === "radiobutton") {
+                                            if (item.hasOwnProperty("fieldOptions")) {
+                                                item.fieldOptions = modelData.options || []
+                                            }
+                                        }
+
+                                        // Передаем placeholder только для текстовых полей
+                                        if (modelData.type === "textfield") {
+                                            if (item.hasOwnProperty("fieldPlaceholder")) {
+                                                item.fieldPlaceholder = modelData.placeholder || ""
+                                            }
+                                        }
+
+                                        // Подключаем сигнал изменения
+                                        if (item.valueChanged) {
+                                            item.valueChanged.connect(function() {
+                                                if (pageLoader && pageLoader.item && pageLoader.item.pageContentChanged) {
+                                                    pageLoader.item.pageContentChanged();
+                                                }
+                                            });
+                                        }
+                                    }
                                 }
                             }
-                        }
-
-                        // Описание
-                        Text {
-                            width: parent.width
-                            height: 12
-                            text: modelData ? (modelData.description || "") : ""
-                            color: groupContainer.groupEnabled ? "#AAAAAA" : "#666666"
-                            font.pointSize: 7
-                            wrapMode: Text.Wrap
-                            elide: Text.ElideRight
                         }
                     }
                 }
@@ -98,81 +140,57 @@ Rectangle {
         }
     }
 
-    // Функция для получения компонентов полей
     function getFieldComponent(type) {
         switch(type) {
             case "textfield": return textFieldComponent
             case "combobox": return comboBoxComponent
             case "checkbox": return checkBoxComponent
+            case "radiobutton": return radioButtonComponent
             default: return textFieldComponent
         }
     }
 
-    // Компоненты для полей
     Component {
         id: textFieldComponent
-        TextField {
-            property var fieldData: null
-
-            placeholderText: fieldData ? (fieldData.placeholder || "Введите значение") : ""
-            text: fieldData ? (fieldData.default || "") : ""
-
-            background: Rectangle {
-                color: "#1A1A1A"
-                border.color: "#505050"
-                radius: 2
-            }
-
-            color: "white"
-            font.pointSize: 9
-            anchors.fill: parent
+        TextFieldComponent {
+            width: parent.width
+            height: parent.height
         }
     }
 
     Component {
         id: comboBoxComponent
-        ComboBox {
-            property var fieldData: null
-
-            model: fieldData ? (fieldData.options || []) : []
-            currentIndex: fieldData && fieldData.options ? fieldData.options.indexOf(fieldData.default || "") : 0
-
-            background: Rectangle {
-                color: "#1A1A1A"
-                border.color: "#505050"
-                radius: 2
-            }
-
-            contentItem: Text {
-                text: parent.displayText
-                color: "white"
-                font.pointSize: 9
-                verticalAlignment: Text.AlignVCenter
-                leftPadding: 8
-            }
-
-            anchors.fill: parent
+        ComboBoxComponent {
+            width: parent.width
+            height: parent.height
         }
     }
 
     Component {
         id: checkBoxComponent
-        CheckBox {
-            property var fieldData: null
-
-            text: fieldData ? (fieldData.label || fieldData.name) : ""
-            checked: fieldData ? (fieldData.default === "true") : false
-
-            contentItem: Text {
-                text: parent.text
-                color: "white"
-                font.pointSize: 9
-                verticalAlignment: Text.AlignVCenter
-                leftPadding: parent.indicator.width + 8
-            }
-
-            anchors.fill: parent
+        CheckBoxComponent {
+            width: parent.width
+            height: parent.height
         }
     }
-}
 
+    Component {
+        id: radioButtonComponent
+        RadioButtonComponent {
+            width: parent.width
+            height: parent.height
+        }
+    }
+
+    // Обновляем размеры при изменении данных группы
+    onGroupDataChanged: {
+        if (groupData) {
+            Qt.callLater(updateGroupSizes)
+        }
+    }
+
+    function updateGroupSizes() {
+        groupContainer.width = calculateGroupWidth();
+        groupContainer.height = calculateGroupHeight();
+    }
+}

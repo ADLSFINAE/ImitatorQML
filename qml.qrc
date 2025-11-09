@@ -22,9 +22,10 @@
         <file>Items/JsonComponents/TextFieldComponent.qml</file>
         <file>Items/JsonContentView.qml</file>
         <file>scrollBarArea/GridLayoutContainer.qml</file>
-        <file>scrollBarArea/GroupComponent.qml</file>
-        <file>scrollBarArea/SingleItemComponent.qml</file>
         <file>scrollBarArea/GroupItem.qml</file>
         <file>scrollBarArea/SingleItem.qml</file>
+        <file>Items/JsonComponents/RadioButtonComponent.qml</file>
+        <file>scrollBarArea/CustomCheckBox.qml</file>
+        <file>Items/JsonComponents/TextFieldComponentWithoutText.qml</file>
     </qresource>
 </RCC>

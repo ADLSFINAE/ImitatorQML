@@ -27,17 +27,6 @@ Rectangle {
         anchors.margins: 5
         spacing: 3
 
-        Text {
-            id: labelText
-            width: parent.width
-            height: 15
-            text: fieldLabel || fieldName
-            color: "white"
-            font.pointSize: 7
-            elide: Text.ElideRight
-            horizontalAlignment: Text.AlignHCenter
-        }
-
         TextField {
             id: textInput
             width: parent.width

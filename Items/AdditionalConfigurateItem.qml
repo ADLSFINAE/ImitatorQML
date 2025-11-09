@@ -5,12 +5,11 @@ import QtQml 2.12
 BaseItem {
     id: additionalConfigurateItem
     itemTitle: "Дополнительно"
-    objectName: "additionalConfigurateItem"
 
     // Окно сообщений
     property var messagesWindow: null
-    property var tabArea: null
-    property var messagesItem: null
+    property var tabArea: null  // Ссылка на TabArea (старая логика)
+    property var messagesItem: null  // Ссылка на MessageItem (новая логика)
 
     Row{
         Column{
@@ -116,6 +115,7 @@ BaseItem {
         }
 
         if (messagesWindow) {
+            // Передаем текущие сообщения для синхронизации (НОВАЯ ЛОГИКА)
             var currentMessages = getCurrentMessagesFromMessageItem()
             messagesWindow.initializeWithExistingPages(currentMessages)
             messagesWindow.show()
@@ -125,15 +125,19 @@ BaseItem {
     // Обработчики сигналов окна сообщений
     function onMessagesSaved(selectedItems) {
         console.log("Сохранены выбранные сообщения:", selectedItems)
+
+        // НОВАЯ ЛОГИКА - добавляем в MessageItem
         syncMessagesWithMessageItem(selectedItems)
-        syncPagesWithTabArea(selectedItems)
+
+        // СТАРАЯ ЛОГИКА - добавляем в TabArea (оставляем для обратной совместимости)
+        addPagesToTabArea(selectedItems)
     }
 
     function onMessagesCanceled() {
         console.log("Диалог сообщений отменен")
     }
 
-    // ========== ФУНКЦИИ ДЛЯ MessageItem ==========
+    // ========== НОВАЯ ЛОГИКА - РАБОТА С MessageItem ==========
 
     // Функция для получения текущих сообщений из MessageItem
     function getCurrentMessagesFromMessageItem() {
@@ -173,6 +177,7 @@ BaseItem {
                 var newMessageText = selectedItems[j]
                 var exists = false
 
+                // Проверяем, есть ли уже такое сообщение
                 for (var k = 0; k < messagesItem.messagesModel.count; k++) {
                     if (messagesItem.messagesModel.get(k).text === newMessageText) {
                         exists = true
@@ -193,132 +198,6 @@ BaseItem {
         }
     }
 
-    // ========== ФУНКЦИИ ДЛЯ TabArea ==========
-
-    // Функция синхронизации страниц с TabArea
-    function syncPagesWithTabArea(selectedItems) {
-        if (!tabArea) {
-            findTabArea()
-        }
-
-        if (tabArea && tabArea.pagesModel) {
-            var selectedSet = new Set(selectedItems)
-
-            // Удаляем страницы, которых нет в выбранных
-            for (var i = tabArea.pagesModel.count - 1; i >= 0; i--) {
-                var pageName = tabArea.pagesModel.get(i).pageName
-                if (!selectedSet.has(pageName)) {
-                    console.log("Удаляем страницу из TabArea:", pageName)
-                    tabArea.pagesModel.remove(i)
-                }
-            }
-
-            // Добавляем новые выбранные страницы
-            for (var j = 0; j < selectedItems.length; j++) {
-                var newPageName = selectedItems[j]
-                var exists = false
-
-                for (var k = 0; k < tabArea.pagesModel.count; k++) {
-                    if (tabArea.pagesModel.get(k).pageName === newPageName) {
-                        exists = true
-                        break
-                    }
-                }
-
-                if (!exists) {
-                    console.log("Добавляем страницу в TabArea:", newPageName)
-                    tabArea.pagesModel.append({
-                        "pageName": newPageName,
-                        "pageNumber": 1
-                    })
-                }
-            }
-        } else {
-            console.log("TabArea не найден или недоступен")
-        }
-    }
-
-    // Функция удаления страницы из TabArea
-    function removePageFromTabArea(pageName) {
-        if (!tabArea) {
-            findTabArea()
-        }
-
-        if (tabArea && tabArea.pagesModel) {
-            for (var i = 0; i < tabArea.pagesModel.count; i++) {
-                if (tabArea.pagesModel.get(i).pageName === pageName) {
-                    console.log("Удаляем страницу из TabArea:", pageName)
-                    tabArea.pagesModel.remove(i)
-                    break
-                }
-            }
-        }
-    }
-
-    // Функция добавления страницы в TabArea
-    function addPageToTabArea(pageName) {
-        if (!tabArea) {
-            findTabArea()
-        }
-
-        if (tabArea && tabArea.pagesModel) {
-            var exists = false
-            for (var i = 0; i < tabArea.pagesModel.count; i++) {
-                if (tabArea.pagesModel.get(i).pageName === pageName) {
-                    exists = true
-                    break
-                }
-            }
-
-            if (!exists) {
-                console.log("Добавляем страницу в TabArea:", pageName)
-                tabArea.pagesModel.append({
-                    "pageName": pageName,
-                    "pageNumber": 1
-                })
-            }
-        }
-    }
-
-    // ========== ОБРАБОТЧИКИ СИГНАЛОВ ==========
-
-    // НОВАЯ ФУНКЦИЯ: Обработка снятия галочки в MessageItem
-    function onMessageToggled(messageText, checked) {
-        console.log("Сообщение переключено:", messageText, checked)
-
-        if (!checked) {
-            // Если сняли галочку - удаляем из TabArea
-            removePageFromTabArea(messageText)
-
-            // Обновляем состояние в MessagesWindow (если открыто)
-            if (messagesWindow) {
-                updateMessagesWindowState(messageText, false)
-            }
-        } else {
-            // Если поставили галочку - добавляем в TabArea
-            addPageToTabArea(messageText)
-
-            // Обновляем состояние в MessagesWindow (если открыто)
-            if (messagesWindow) {
-                updateMessagesWindowState(messageText, true)
-            }
-        }
-    }
-
-    // Функция обновления состояния в MessagesWindow
-    function updateMessagesWindowState(messageText, checked) {
-        if (messagesWindow && messagesWindow.messagesModel) {
-            for (var i = 0; i < messagesWindow.messagesModel.count; i++) {
-                if (messagesWindow.messagesModel.get(i).name === messageText) {
-                    messagesWindow.messagesModel.setProperty(i, "checked", checked)
-                    break
-                }
-            }
-        }
-    }
-
-    // ========== ФУНКЦИИ ПОИСКА КОМПОНЕНТОВ ==========
-
     // Функция поиска MessageItem
     function findMessageItem() {
         var parentItem = parent
@@ -326,26 +205,57 @@ BaseItem {
             if (parentItem.objectName === "messagesItem" || parentItem.hasOwnProperty("messagesModel")) {
                 messagesItem = parentItem
                 console.log("MessageItem найден")
-                // Подключаем обработчик сигнала
-                messagesItem.messageToggled.connect(onMessageToggled)
                 break
             }
             parentItem = parentItem.parent
         }
 
+        // Альтернативный поиск по id
         if (!messagesItem) {
             var root = parent
             while (root && root.parent) {
                 root = root.parent
             }
             messagesItem = findChild(root, "messagesItem")
-            if (messagesItem) {
-                messagesItem.messageToggled.connect(onMessageToggled)
-            }
         }
     }
 
-    // Функция поиска TabArea
+    // ========== СТАРАЯ ЛОГИКА - РАБОТА С TabArea ==========
+
+    // Функция для добавления страниц в TabArea (СТАРАЯ ЛОГИКА)
+    function addPagesToTabArea(selectedItems) {
+        if (!tabArea) {
+            findTabArea()
+        }
+
+        if (tabArea && tabArea.pagesModel) {
+            // Добавляем каждое выбранное сообщение как новую страницу
+            for (var i = 0; i < selectedItems.length; i++) {
+                var pageName = selectedItems[i]
+
+                // Проверяем, нет ли уже такой страницы
+                var exists = false
+                for (var j = 0; j < tabArea.pagesModel.count; j++) {
+                    if (tabArea.pagesModel.get(j).pageName === pageName) {
+                        exists = true
+                        break
+                    }
+                }
+
+                if (!exists) {
+                    tabArea.pagesModel.append({
+                        "pageName": pageName,
+                        "pageNumber": 1
+                    })
+                    console.log("Добавлена страница в TabArea:", pageName)
+                }
+            }
+        } else {
+            console.log("TabArea не найден или недоступен")
+        }
+    }
+
+    // Функция поиска TabArea (СТАРАЯ ЛОГИКА)
     function findTabArea() {
         var parentItem = parent
         while (parentItem) {
@@ -357,6 +267,7 @@ BaseItem {
             parentItem = parentItem.parent
         }
 
+        // Альтернативный поиск по id
         if (!tabArea) {
             var root = parent
             while (root && root.parent) {
@@ -385,7 +296,8 @@ BaseItem {
 
     // Инициализация при создании компонента
     Component.onCompleted: {
-        findTabArea()
-        findMessageItem()
+        findTabArea()    // Старая логика
+        findMessageItem() // Новая логика
     }
 }
+

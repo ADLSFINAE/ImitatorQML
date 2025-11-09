@@ -1,6 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 import "scrollBarArea"
+import QtQml 2.12
 
 Rectangle {
     id: tabArea
@@ -18,6 +19,9 @@ Rectangle {
     property var currentPageData: ({})
     property string currentPageName: ""
     property var pagesData: ({})
+
+    // Сигнал для сбора данных при изменении
+    signal pageDataChanged(string pageName, var collectedData)
 
     // Компоненты (старый код)
     PagesListView {
@@ -97,7 +101,140 @@ Rectangle {
         // Новая логика - передаем данные для отображения
         pageData: tabArea.currentPageData
         pageName: tabArea.currentPageName
+
+        // Собираем данные при изменении на странице
+        onPageContentChanged: {
+            collectPageData()
+        }
     }
+
+    // Функция для сбора всех данных со страницы
+    function collectPageData() {
+        if (!currentPageData || !currentPageName) return;
+
+        var collectedData = {
+            pageName: currentPageName,
+            basePageName: getBasePageName(currentPageName),
+            timestamp: new Date().toISOString(),
+            items: []
+        };
+
+        // Получаем базовую структуру страницы
+        var baseName = getBasePageName(currentPageName);
+        var basePageData = pagesData[baseName];
+
+        if (!basePageData || !basePageData.items) {
+            console.log("No base data found for page:", baseName);
+            return;
+        }
+
+        // Собираем данные в порядке из JSON
+        for (var i = 0; i < basePageData.items.length; i++) {
+            var itemConfig = basePageData.items[i];
+            var itemData = collectItemData(itemConfig);
+            if (itemData) {
+                collectedData.items.push(itemData);
+            }
+        }
+
+        // Выводим собранные данные
+        console.log("=== COLLECTED PAGE DATA ===");
+        console.log("Page:", currentPageName);
+        console.log("Base Page:", baseName);
+        console.log("Items count:", collectedData.items.length);
+
+        for (var j = 0; j < collectedData.items.length; j++) {
+            var item = collectedData.items[j];
+            console.log("Item", j + 1 + ":", item.name, "=", item.value, "(type:", item.type + ")");
+        }
+
+        console.log("=== END PAGE DATA ===");
+
+        // Отправляем сигнал
+        pageDataChanged(currentPageName, collectedData);
+    }
+
+    // Функция для сбора данных отдельного элемента
+    function collectItemData(itemConfig) {
+        if (!itemConfig) return null;
+
+        var itemData = {
+            name: itemConfig.name || "",
+            type: itemConfig.type || "",
+            label: itemConfig.label || "",
+            enabled: true, // Будет обновлено из состояния UI
+            value: ""
+        };
+
+        // Получаем текущее значение из UI
+        // Для этого нужно найти соответствующий компонент на странице
+        var component = findComponentByName(itemConfig.name);
+        if (component) {
+            itemData.enabled = component.enabled !== undefined ? component.enabled : true;
+            itemData.value = getComponentValue(component, itemConfig.type);
+        } else {
+            // Если компонент не найден, используем значения по умолчанию
+            itemData.enabled = itemConfig.enabled !== undefined ? itemConfig.enabled : true;
+            itemData.value = itemConfig.default || "";
+        }
+
+        return itemData;
+    }
+
+    // Функция для поиска компонента по имени
+    function findComponentByName(name) {
+        // Ищем в PageLoader'е компонент с указанным именем
+        // Это упрощенная реализация - в реальности нужно пройти по всем детям
+        if (pageLoader && pageLoader.item) {
+            return findChildByName(pageLoader.item, name);
+        }
+        return null;
+    }
+
+    // Рекурсивный поиск по дереву компонентов
+    function findChildByName(parent, name) {
+        if (!parent) return null;
+
+        // Проверяем текущий компонент
+        if (parent.fieldName === name || parent.objectName === name) {
+            return parent;
+        }
+
+        // Рекурсивно проверяем детей
+        for (var i = 0; i < parent.children.length; i++) {
+            var child = parent.children[i];
+            var found = findChildByName(child, name);
+            if (found) return found;
+        }
+
+        return null;
+    }
+
+    // Функция для получения значения из компонента по его типу
+    function getComponentValue(component, type) {
+        if (!component) return "";
+
+        switch(type) {
+            case "textfield":
+                return component.textInput ? component.textInput.text :
+                       (component.text !== undefined ? component.text : "");
+
+            case "combobox":
+                return component.currentText !== undefined ? component.currentText :
+                       (component.displayText !== undefined ? component.displayText : "");
+
+            case "checkbox":
+                return component.checked !== undefined ? component.checked.toString() : "false";
+
+            case "radiobutton":
+                return component.selectedValue !== undefined ? component.selectedValue : "";
+
+            default:
+                return "";
+        }
+    }
+
+    // Остальные существующие функции остаются без изменений...
 
     // Старая функция для получения источника страницы
     function getPageSource(index) {
@@ -226,6 +363,12 @@ Rectangle {
             // Если страниц нет, очищаем содержимое
             clearContent()
         }
+
+        // Подключаемся к сигналу изменения данных
+        pageDataChanged.connect(function(pageName, data) {
+            console.log("Page data changed for:", pageName);
+            // Здесь можно добавить дополнительную обработку
+        });
     }
 
     // Функция инициализации данных страниц
@@ -245,112 +388,168 @@ Rectangle {
         console.log("Available base pages:", Object.keys(pagesData))
     }
 
-    // Функция для получения доступных данных страниц
     function getAvailablePagesData() {
         return {
             "page1": {
                 "pageName": "Страница 1 - Основные настройки",
                 "layout": {
-                    "columns": 6,
-                    "rows": 4,
-                    "cellWidth": 200,
-                    "cellHeight": 80
+                    "columns": 10,
+                    "rows": 6,
+                    "cellWidth": 288,
+                    "cellHeight": 90
                 },
                 "items": [
                     {
-                        "type": "textfield",
-                        "name": "deviceName",
-                        "label": "Имя устройства",
-                        "placeholder": "Введите имя устройства",
-                        "default": "NMEA Simulator",
-                        "enabled": true,
-                        "description": "Уникальное имя устройства",
-                        "position": {"x": 1, "y": 1, "width": 3, "height": 1}
-                    },
-                    {
-                        "type": "group",
-                        "name": "serialGroup",
-                        "label": "Настройки порта",
-                        "enabled": true,
-                        "position": {"x": 1, "y": 2, "width": 3, "height": 2},
-                        "items": [
-                            {
-                                "type": "textfield",
-                                "name": "port",
-                                "label": "Порт",
-                                "placeholder": "COM1, COM2, ...",
-                                "default": "COM1",
-                                "description": "Имя последовательного порта"
-                            },
-                            {
-                                "type": "combobox",
-                                "name": "baudrate",
-                                "label": "Скорость",
-                                "options": ["4800", "9600", "19200", "38400", "57600", "115200"],
-                                "default": "9600",
-                                "description": "Скорость передачи (бод)"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "checkbox",
-                        "name": "enableLogging",
-                        "label": "Логирование",
-                        "default": "true",
-                        "enabled": false,
-                        "description": "Записывать данные в файл",
-                        "position": {"x": 4, "y": 1, "width": 2, "height": 1}
+                        "type": "radiobutton",
+                        "name": "dataFormat",
+                        "label": "Формат данных",
+                        "options": ["NMEA 0183", "NMEA 2000", "Binary", "Custom"],
+                        "default": "NMEA 0183",
+                        "pageName": "page1", // Добавляем pageName
+                        "position": {"x": 1, "y": 1, "width": 2, "height": 1}
                     }
                 ]
             },
             "page2": {
                 "pageName": "Страница 2 - Сообщения NMEA",
                 "layout": {
-                    "columns": 4,
-                    "rows": 3,
-                    "cellWidth": 250,
+                    "columns": 10,
+                    "rows": 6,
+                    "cellWidth": 225,
                     "cellHeight": 90
                 },
                 "items": [
                     {
+                        "type": "combobox",
+                        "name": "dataSource",
+                        "label": "Источник данных",
+                        "options": ["GP - GPS", "GL - ГЛОНАСС", "GN - ГЛОНАСС + GPS", "IN - Счисление", "EI - Ручной ввод"],
+                        "default": "GP - GPS",
+                        "pageName": "page2", // Добавляем pageName
+                        "position": {"x": 1, "y": 1, "width": 1, "height": 1}
+                    },
+                    {
                         "type": "group",
-                        "name": "nmeaMessages",
-                        "label": "NMEA сообщения",
+                        "name": "latitudeGroup",
+                        "label": "Широта",
                         "enabled": true,
-                        "position": {"x": 1, "y": 1, "width": 2, "height": 2},
+                        "pageName": "page2", // Добавляем pageName
+                        "position": {"x": 2, "y": 1, "width": 2, "height": 1},
                         "items": [
                             {
-                                "type": "checkbox",
-                                "name": "enableGGA",
-                                "label": "GGA",
-                                "default": "true",
-                                "description": "Фиксированные данные о местоположении"
+                                "type": "textfield",
+                                "name": "latitudeDegrees",
+                                "enabled": true,
+                                "description": "Градусы",
+                                "pageName": "page2", // Добавляем pageName
                             },
                             {
-                                "type": "checkbox",
-                                "name": "enableRMC",
-                                "label": "RMC",
-                                "default": "true",
-                                "description": "Рекомендуемые минимальные данные GPS"
+                                "type": "textfield",
+                                "name": "latitudeMinutes",
+                                "enabled": true,
+                                "description": "Минуты",
+                                "pageName": "page2", // Добавляем pageName
                             },
                             {
-                                "type": "checkbox",
-                                "name": "enableGLL",
-                                "label": "GLL",
-                                "default": "false",
-                                "description": "Данные о широте и долготе"
+                                "type": "textfield",
+                                "name": "latitudeFraction",
+                                "enabled": true,
+                                "description": "Доли минут",
+                                "pageName": "page2", // Добавляем pageName
                             }
                         ]
                     },
                     {
-                        "type": "textfield",
-                        "name": "updateRate",
-                        "label": "Частота обновления",
-                        "placeholder": "секунды",
-                        "default": "1",
+                        "type": "group",
+                        "name": "longitudeGroup",
+                        "label": "Долгота",
                         "enabled": true,
-                        "description": "Интервал между сообщениями",
-                        "position": {"x": 3, "y": 1, "width": 1, "height": 1}
+                        "pageName": "page2", // Добавляем pageName
+                        "position": {"x": 5, "y": 1, "width": 2, "height": 1},
+                        "items": [
+                            {
+                                "type": "textfield",
+                                "name": "longitudeDegrees",
+                                "enabled": true,
+                                "description": "Градусы",
+                                "pageName": "page2", // Добавляем pageName
+                            },
+                            {
+                                "type": "textfield",
+                                "name": "longitudeMinutes",
+                                "enabled": true,
+                                "description": "Минуты",
+                                "pageName": "page2", // Добавляем pageName
+                            },
+                            {
+                                "type": "textfield",
+                                "name": "longitudeFraction",
+                                "enabled": true,
+                                "description": "Доли минут",
+                                "pageName": "page2", // Добавляем pageName
+                            }
+                        ]
+                    },
+                    {
+                        "type": "combobox",
+                        "name": "quality",
+                        "label": "Качество",
+                        "options": ["0 - Обсервация не получена",
+                            "1 - Обсервация получена",
+                            "2 - Дифференциальный режим",
+                            "6 - Счисление",
+                            "7 - Ручной ввод"],
+                        "default": "0 - Обсервация не получена",
+                        "pageName": "page2", // Добавляем pageName
+                        "position": {"x": 8, "y": 1, "width": 2, "height": 1}
+                    },
+                    {
+                        "type": "textfield",
+                        "name": "satelliteCount",
+                        "label": "Количество спутников",
+                        "enabled": true,
+                        "pageName": "page2", // Добавляем pageName
+                        "position": {"x": 10, "y": 1, "width": 1, "height": 1}
+                    },
+                    {
+                        "type": "textfield",
+                        "name": "horizontalFactor",
+                        "label": "Горизонтальный геометрический фактор",
+                        "enabled": true,
+                        "pageName": "page2", // Добавляем pageName
+                        "position": {"x": 1, "y": 2, "width": 2, "height": 1}
+                    },
+                    {
+                        "type": "textfield",
+                        "name": "antennaHeight",
+                        "label": "Высота антенны над уровнем моря, м",
+                        "enabled": true,
+                        "pageName": "page2", // Добавляем pageName
+                        "position": {"x": 3, "y": 2, "width": 2, "height": 1}
+                    },
+                    {
+                        "type": "textfield",
+                        "name": "geoidHeight",
+                        "label": "Превышение геоида над эллипсоидом П3-90, м",
+                        "enabled": true,
+                        "pageName": "page2", // Добавляем pageName
+                        "position": {"x": 5, "y": 2, "width": 2, "height": 1}
+                    },
+                    {
+                        "type": "textfield",
+                        "name": "diffCorrectionAge",
+                        "label": "Возраст дифференциальных поправок, секунды",
+                        "enabled": true,
+                        "pageName": "page2", // Добавляем pageName
+                        "position": {"x": 7, "y": 2, "width": 4, "height": 1}
+                    },
+                    {
+                        "type": "textfield",
+                        "name": "stationIndicator",
+                        "label": "Индикатор дифференциальной станции",
+                        "enabled": true,
+                        "pageName": "page2", // Добавляем pageName
+                        "position": {"x": 1, "y": 3, "width": 2, "height": 1}
                     }
                 ]
             }
