@@ -1,34 +1,27 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import "BaseCustomTabAreaComponent"
 
-Rectangle {
+BaseCustomTabAreaComponent {
     id: checkBoxComponent
 
-    property string fieldName: ""
-    property string fieldLabel: ""
-    property string fieldDefault: ""
-    property string pageName: ""
+    implicitHeight: 40
 
-    // Динамические размеры
-    implicitWidth: Math.max(120, checkBox.implicitWidth + 20)
-    implicitHeight: 40 // Фиксированная высота для чекбокса
-
-    // Стиль
-    color: "transparent"
-    border.color: "#00CED1"
-    border.width: 1
-    radius: 3
-
-    signal valueChanged()
+    // Переопределяем цвета для чекбокса
+    controlColor: "#00CED1"  // Бирюзовый
+    textColor: "#00CED1"     // Бирюзовый текст
+    disabledColor: "#008B8B" // Темно-бирюзовый для disabled состояния
 
     CheckBox {
         id: checkBox
         text: fieldLabel
         checked: fieldDefault === "true"
         anchors.centerIn: parent
+        enabled: baseComponent.enabled
 
         onCheckedChanged: {
-            checkBoxComponent.valueChanged()
+            fieldDefault = checked.toString()
+            valueChanged()
             console.log("Page:", pageName, "CheckBox", fieldName, "changed to:", checked)
 
             if (dataController) {
@@ -38,7 +31,7 @@ Rectangle {
 
         contentItem: Text {
             text: checkBox.text
-            color: "#00CED1"
+            color: baseComponent.enabled ? baseComponent.controlColor : baseComponent.disabledColor
             font.pointSize: 9
             verticalAlignment: Text.AlignVCenter
             leftPadding: checkBox.indicator.width + 8
@@ -51,19 +44,30 @@ Rectangle {
             x: checkBox.leftPadding
             y: parent.height / 2 - height / 2
             radius: 3
-            border.color: checkBox.checked ? "#00CED1" : "#888888"
+            border.color: checkBox.checked ? baseComponent.controlColor : "#888888"
             border.width: 1
 
             Rectangle {
                 width: 8
                 height: 8
-                x: 4
-                y: 4
+                x: 3
+                y: 3
                 radius: 2
-                color: "#00CED1"
+                color: baseComponent.controlColor
                 visible: checkBox.checked
             }
         }
     }
-}
 
+    function getValue() {
+        return checkBox.checked.toString()
+    }
+
+    function setValue(value) {
+        checkBox.checked = value === "true"
+    }
+
+    function resetToDefault() {
+        checkBox.checked = fieldDefault === "true"
+    }
+}

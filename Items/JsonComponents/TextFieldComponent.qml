@@ -32,7 +32,7 @@ Rectangle {
             width: parent.width
             height: 15
             text: fieldLabel || fieldName
-            color: "white"
+            color: "yellow"
             font.pointSize: 7
             elide: Text.ElideRight
             horizontalAlignment: Text.AlignHCenter

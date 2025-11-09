@@ -7,13 +7,10 @@ Rectangle {
     id: groupContainer
     property var groupData: null
     property bool groupEnabled: groupData && groupData.enabled !== undefined ? groupData.enabled : true
-    property real cellWidth: 75
+    property real cellWidth: 70
     property real cellHeight: 60
 
     color: "transparent"
-    border.color: "#00CED1"
-    border.width: 1
-    radius: 3
 
     // Размеры рассчитываются исходя из количества элементов
     width: calculateGroupWidth()
@@ -27,7 +24,7 @@ Rectangle {
         var margins = 10; // внутренние отступы группы
 
         // Ширина = (количество элементов * ширина элемента) + отступы
-        return (itemCount * cellWidth) + ((itemCount - 1) * spacing) + margins;
+        return (itemCount * cellWidth) + ((itemCount - 1) * spacing) + (margins * 2);
     }
 
     function calculateGroupHeight() {
@@ -41,7 +38,6 @@ Rectangle {
     Column {
         anchors.fill: parent
         anchors.margins: 5
-        spacing: 5
 
         // Кастомный чекбокс для всей группы
         CustomCheckBox {

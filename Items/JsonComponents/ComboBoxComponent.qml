@@ -1,26 +1,14 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import "BaseCustomTabAreaComponent"
 
-Rectangle {
+BaseCustomTabAreaComponent {
     id: comboBoxComponent
 
-    property string fieldName: ""
-    property string fieldLabel: ""
-    property string fieldDefault: ""
-    property string pageName: ""
-    property var fieldOptions: []
+    // Устанавливаем цвета
+    textColor: "white"  // Белый цвет для выбранного текста
 
-    // Динамические размеры
-    implicitWidth: Math.max(150, labelText.implicitWidth + 20)
-    implicitHeight: labelText.implicitHeight + comboBox.height + 10
-
-    // Стиль
-    color: "transparent"
-    border.color: "#00CED1"
-    border.width: 1
-    radius: 3
-
-    signal valueChanged()
+    implicitHeight: 50
 
     Column {
         anchors.fill: parent
@@ -33,20 +21,40 @@ Rectangle {
             height: 25
             model: fieldOptions
             currentIndex: fieldOptions.indexOf(fieldDefault)
+            enabled: comboBoxComponent.enabled
 
             background: Rectangle {
                 color: "#2A2A2A"
-                border.color: "#606060"
+                border.color: comboBoxComponent.enabled ? "#606060" : comboBoxComponent.disabledColor
                 radius: 2
             }
 
             contentItem: Text {
                 text: comboBox.displayText
-                color: "white"
+                color: comboBoxComponent.textColor  // Белый цвет выбранного текста
                 font.pointSize: 8
                 verticalAlignment: Text.AlignVCenter
                 leftPadding: 5
                 elide: Text.ElideRight
+            }
+
+            delegate: ItemDelegate {
+                width: comboBox.width
+                height: 25
+                highlighted: comboBox.highlightedIndex === index
+
+                contentItem: Text {
+                    text: modelData
+                    color: "green"  // Зеленый цвет для текста в опциях
+                    font.pointSize: 8
+                    verticalAlignment: Text.AlignVCenter
+                    leftPadding: 5
+                    elide: Text.ElideRight
+                }
+
+                background: Rectangle {
+                    color: highlighted ? "#404040" : "#2A2A2A"
+                }
             }
 
             popup: Popup {
@@ -72,13 +80,28 @@ Rectangle {
             }
 
             onCurrentTextChanged: {
-                comboBoxComponent.valueChanged()
-                console.log("Page:", pageName, "ComboBox", fieldName, "changed to:", currentText)
+                if (currentText !== fieldDefault) {
+                    fieldDefault = currentText
+                    valueChanged()
+                    console.log("Page:", pageName, "ComboBox", fieldName, "changed to:", currentText)
 
-                if (dataController) {
-                    dataController.addDataChange(pageName, fieldName, "combobox", currentText)
+                    if (dataController) {
+                        dataController.addDataChange(pageName, fieldName, "combobox", currentText)
+                    }
                 }
             }
         }
+    }
+
+    function getValue() {
+        return comboBox.currentText
+    }
+
+    function setValue(value) {
+        comboBox.currentIndex = fieldOptions.indexOf(value)
+    }
+
+    function resetToDefault() {
+        comboBox.currentIndex = fieldOptions.indexOf(fieldDefault)
     }
 }

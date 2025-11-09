@@ -416,7 +416,7 @@ Rectangle {
                     "columns": 10,
                     "rows": 6,
                     "cellWidth": 225,
-                    "cellHeight": 90
+                    "cellHeight": 150
                 },
                 "items": [
                     {

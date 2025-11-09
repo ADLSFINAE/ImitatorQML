@@ -1,34 +1,29 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import "BaseCustomTabAreaComponent"
 
-Rectangle {
+BaseCustomTabAreaComponent {
     id: radioButtonComponent
 
-    property string fieldName: ""
-    property string fieldLabel: ""
-    property string fieldDefault: ""
-    property var fieldOptions: []
     property string selectedValue: fieldDefault
-    property string pageName: ""
+
+    // Устанавливаем бирюзовые цвета
+    controlColor: "#00CED1"  // Бирюзовый
+    textColor: "#00CED1"     // Бирюзовый текст
+    disabledColor: "#008B8B" // Темно-бирюзовый для disabled состояния
 
     // Динамические размеры - рассчитываем на основе количества опций
-    implicitWidth: Math.max(150, labelText.implicitWidth + 20)
-    implicitHeight: labelText.implicitHeight + (fieldOptions.length * 25) + 15
-
-    // Стиль
-    color: "transparent"
-    border.color: "#00CED1"
-    border.width: 1
-    radius: 3
-
-    signal valueChanged()
+    implicitHeight: (fieldOptions.length * 25) + 15
 
     onSelectedValueChanged: {
-        valueChanged()
-        console.log("Page:", pageName, "RadioButton", fieldName, "changed to:", selectedValue)
+        if (selectedValue !== fieldDefault) {
+            fieldDefault = selectedValue
+            valueChanged()
+            console.log("Page:", pageName, "RadioButton", fieldName, "changed to:", selectedValue)
 
-        if (dataController) {
-            dataController.addDataChange(pageName, fieldName, "radiobutton", selectedValue)
+            if (dataController) {
+                dataController.addDataChange(pageName, fieldName, "radiobutton", selectedValue)
+            }
         }
     }
 
@@ -50,6 +45,7 @@ Rectangle {
                     checked: modelData === selectedValue
                     width: parent.width
                     height: 20
+                    enabled: radioButtonComponent.enabled
 
                     onCheckedChanged: {
                         if (checked) {
@@ -59,7 +55,7 @@ Rectangle {
 
                     contentItem: Text {
                         text: radioDelegate.text
-                        color: "#00CED1"
+                        color: radioButtonComponent.enabled ? radioButtonComponent.controlColor : radioButtonComponent.disabledColor
                         font.pointSize: 7
                         verticalAlignment: Text.AlignVCenter
                         leftPadding: radioDelegate.indicator.width + 6
@@ -73,7 +69,7 @@ Rectangle {
                         x: radioDelegate.leftPadding
                         y: parent.height / 2 - height / 2
                         radius: 6
-                        border.color: radioDelegate.checked ? "#00CED1" : "#888888"
+                        border.color: radioDelegate.checked ? radioButtonComponent.controlColor : "#888888"
                         border.width: 1
 
                         Rectangle {
@@ -82,12 +78,24 @@ Rectangle {
                             x: 3
                             y: 3
                             radius: 3
-                            color: "#00CED1"
+                            color: radioButtonComponent.controlColor
                             visible: radioDelegate.checked
                         }
                     }
                 }
             }
         }
+    }
+
+    function getValue() {
+        return selectedValue
+    }
+
+    function setValue(value) {
+        selectedValue = value
+    }
+
+    function resetToDefault() {
+        selectedValue = fieldDefault
     }
 }
