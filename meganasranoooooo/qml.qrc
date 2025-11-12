@@ -1,0 +1,32 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>Items/AdditionalConfigurateItem.qml</file>
+        <file>Items/BaseItem.qml</file>
+        <file>Items/ConfigurateItem.qml</file>
+        <file>Items/MessagesItem.qml</file>
+        <file>Items/PortItem.qml</file>
+        <file>ImitatorMainTab.qml</file>
+        <file>Items/TimeDateItem.qml</file>
+        <file>scrollBarArea/BlueStrip.qml</file>
+        <file>scrollBarArea/PageButton.qml</file>
+        <file>scrollBarArea/PageLoader.qml</file>
+        <file>scrollBarArea/PagesListView.qml</file>
+        <file>scrollBarArea/PagesScrollBar.qml</file>
+        <file>TabArea.qml</file>
+        <file>Items/PortItem/CustomComboBox.qml</file>
+        <file>Items/PortItem/PortRow.qml</file>
+        <file>Items/AdditionalConfigurateItem/MessagesWindow.qml</file>
+        <file>Items/JsonComponents/CheckBoxComponent.qml</file>
+        <file>Items/JsonComponents/ComboBoxComponent.qml</file>
+        <file>Items/JsonComponents/TextFieldComponent.qml</file>
+        <file>Items/JsonContentView.qml</file>
+        <file>scrollBarArea/GridLayoutContainer.qml</file>
+        <file>scrollBarArea/GroupItem.qml</file>
+        <file>scrollBarArea/SingleItem.qml</file>
+        <file>Items/JsonComponents/RadioButtonComponent.qml</file>
+        <file>scrollBarArea/CustomCheckBox.qml</file>
+        <file>Items/JsonComponents/TextFieldComponentWithoutText.qml</file>
+        <file>Items/JsonComponents/BaseCustomTabAreaComponent/BaseCustomTabAreaComponent.qml</file>
+    </qresource>
+</RCC>
