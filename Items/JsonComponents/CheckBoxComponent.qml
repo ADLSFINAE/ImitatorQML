@@ -12,12 +12,46 @@ BaseCustomTabAreaComponent {
     textColor: "#00CED1"     // Бирюзовый текст
     disabledColor: "#008B8B" // Темно-бирюзовый для disabled состояния
 
+    onEnabledChanged: {
+        if (dataController) {
+            if (enabled) {
+                // Восстанавливаем значение из mementoMory при включении
+                if (mementoMory !== "") {
+                    setValue(mementoMory)
+                    dataController.addDataChange(pageName, fieldName, "checkbox", mementoMory)
+                }
+            } else {
+                // Сохраняем текущее значение в mementoMory при выключении
+                mementoMory = getValue()
+                dataController.addDataChange(pageName, fieldName, "checkbox", "")
+            }
+        }
+    }
+
+    onGroupEnabledChanged: {
+        if (dataController) {
+            if (groupEnabled) {
+                // Восстанавливаем значение из mementoMory при включении группы
+                if (mementoMory !== "") {
+                    setValue(mementoMory)
+                    dataController.addDataChange(pageName, fieldName, "checkbox", mementoMory)
+                }
+            } else {
+                // Сохраняем текущее значение в mementoMory при выключении группы
+                mementoMory = getValue()
+                dataController.addDataChange(pageName, fieldName, "checkbox", "")
+            }
+        }
+
+        groupStateChanged(groupEnabled);
+    }
+
     CheckBox {
         id: checkBox
         text: fieldLabel
         checked: fieldDefault === "true"
         anchors.centerIn: parent
-        enabled: baseComponent.enabled
+        enabled: checkBoxComponent.finalEnabled
 
         onCheckedChanged: {
             fieldDefault = checked.toString()
@@ -31,7 +65,7 @@ BaseCustomTabAreaComponent {
 
         contentItem: Text {
             text: checkBox.text
-            color: baseComponent.enabled ? baseComponent.controlColor : baseComponent.disabledColor
+            color: checkBoxComponent.finalEnabled ? checkBoxComponent.controlColor : checkBoxComponent.disabledColor
             font.pointSize: 9
             verticalAlignment: Text.AlignVCenter
             leftPadding: checkBox.indicator.width + 8
@@ -44,7 +78,7 @@ BaseCustomTabAreaComponent {
             x: checkBox.leftPadding
             y: parent.height / 2 - height / 2
             radius: 3
-            border.color: checkBox.checked ? baseComponent.controlColor : "#888888"
+            border.color: checkBox.checked ? checkBoxComponent.controlColor : "#888888"
             border.width: 1
 
             Rectangle {
@@ -53,7 +87,7 @@ BaseCustomTabAreaComponent {
                 x: 3
                 y: 3
                 radius: 2
-                color: baseComponent.controlColor
+                color: checkBoxComponent.controlColor
                 visible: checkBox.checked
             }
         }

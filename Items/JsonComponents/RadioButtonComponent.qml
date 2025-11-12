@@ -27,6 +27,40 @@ BaseCustomTabAreaComponent {
         }
     }
 
+    onEnabledChanged: {
+        if (dataController) {
+            if (enabled) {
+                // Восстанавливаем значение из mementoMory при включении
+                if (mementoMory !== "") {
+                    selectedValue = mementoMory
+                    dataController.addDataChange(pageName, fieldName, "radiobutton", mementoMory)
+                }
+            } else {
+                // Сохраняем текущее значение в mementoMory при выключении
+                mementoMory = getValue()
+                dataController.addDataChange(pageName, fieldName, "radiobutton", "")
+            }
+        }
+    }
+
+    onGroupEnabledChanged: {
+        if (dataController) {
+            if (groupEnabled) {
+                // Восстанавливаем значение из mementoMory при включении группы
+                if (mementoMory !== "") {
+                    selectedValue = mementoMory
+                    dataController.addDataChange(pageName, fieldName, "radiobutton", mementoMory)
+                }
+            } else {
+                // Сохраняем текущее значение в mementoMory при выключении группы
+                mementoMory = getValue()
+                dataController.addDataChange(pageName, fieldName, "radiobutton", "")
+            }
+        }
+
+        groupStateChanged(groupEnabled);
+    }
+
     Column {
         anchors.fill: parent
         anchors.margins: 8
@@ -45,7 +79,7 @@ BaseCustomTabAreaComponent {
                     checked: modelData === selectedValue
                     width: parent.width
                     height: 20
-                    enabled: radioButtonComponent.enabled
+                    enabled: radioButtonComponent.finalEnabled
 
                     onCheckedChanged: {
                         if (checked) {
@@ -55,7 +89,7 @@ BaseCustomTabAreaComponent {
 
                     contentItem: Text {
                         text: radioDelegate.text
-                        color: radioButtonComponent.enabled ? radioButtonComponent.controlColor : radioButtonComponent.disabledColor
+                        color: radioButtonComponent.finalEnabled ? radioButtonComponent.controlColor : radioButtonComponent.disabledColor
                         font.pointSize: 7
                         verticalAlignment: Text.AlignVCenter
                         leftPadding: radioDelegate.indicator.width + 6

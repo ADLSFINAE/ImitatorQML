@@ -10,6 +10,40 @@ BaseCustomTabAreaComponent {
 
     implicitHeight: 50
 
+    onEnabledChanged: {
+        if (dataController) {
+            if (enabled) {
+                // Восстанавливаем значение из mementoMory при включении
+                if (mementoMory !== "") {
+                    setValue(mementoMory)
+                    dataController.addDataChange(pageName, fieldName, "combobox", mementoMory)
+                }
+            } else {
+                // Сохраняем текущее значение в mementoMory при выключении
+                mementoMory = getValue()
+                dataController.addDataChange(pageName, fieldName, "combobox", "")
+            }
+        }
+    }
+
+    onGroupEnabledChanged: {
+        if (dataController) {
+            if (groupEnabled) {
+                // Восстанавливаем значение из mementoMory при включении группы
+                if (mementoMory !== "") {
+                    setValue(mementoMory)
+                    dataController.addDataChange(pageName, fieldName, "combobox", mementoMory)
+                }
+            } else {
+                // Сохраняем текущее значение в mementoMory при выключении группы
+                mementoMory = getValue()
+                dataController.addDataChange(pageName, fieldName, "combobox", "")
+            }
+        }
+
+        groupStateChanged(groupEnabled);
+    }
+
     Column {
         anchors.fill: parent
         anchors.margins: 5
@@ -21,17 +55,17 @@ BaseCustomTabAreaComponent {
             height: 25
             model: fieldOptions
             currentIndex: fieldOptions.indexOf(fieldDefault)
-            enabled: comboBoxComponent.enabled
+            enabled: comboBoxComponent.finalEnabled
 
             background: Rectangle {
                 color: "#2A2A2A"
-                border.color: comboBoxComponent.enabled ? "#606060" : comboBoxComponent.disabledColor
+                border.color: comboBoxComponent.finalEnabled ? "#606060" : comboBoxComponent.disabledColor
                 radius: 2
             }
 
             contentItem: Text {
                 text: comboBox.displayText
-                color: comboBoxComponent.textColor  // Белый цвет выбранного текста
+                color: comboBoxComponent.finalEnabled ? comboBoxComponent.textColor : comboBoxComponent.disabledColor
                 font.pointSize: 8
                 verticalAlignment: Text.AlignVCenter
                 leftPadding: 5
@@ -45,7 +79,7 @@ BaseCustomTabAreaComponent {
 
                 contentItem: Text {
                     text: modelData
-                    color: "green"  // Зеленый цвет для текста в опциях
+                    color: comboBoxComponent.finalEnabled ? "green" : comboBoxComponent.disabledColor
                     font.pointSize: 8
                     verticalAlignment: Text.AlignVCenter
                     leftPadding: 5

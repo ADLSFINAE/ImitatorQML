@@ -15,6 +15,8 @@ Rectangle {
     implicitWidth: Math.max(150, fieldContent.implicitWidth || 0)
     implicitHeight: (itemCheckBox.height + innerContainer.implicitHeight + descriptionText.height + 10)
 
+    // УБИРАЕМ дублирующий сигнал - он уже автоматически создается для itemEnabled
+
     // Кастомный чекбокс отключения элемента
     CustomCheckBox {
         id: itemCheckBox
@@ -27,7 +29,21 @@ Rectangle {
             if (itemData) {
                 singleContainer.itemEnabled = checked
                 innerContainer.enabled = checked
-                console.log("Item", itemData.name, checked ? "enabled" : "disabled")
+
+                // Используем автоматически созданный сигнал
+                handleItemEnabledChange(checked)
+
+                console.log("=== CHECKBOX STATE CHANGE ===")
+                console.log("Page:", itemData.pageName || "Unknown")
+                console.log("Item:", itemData.name)
+                console.log("Type:", itemData.type)
+                console.log("Enabled:", checked ? "true" : "false")
+                console.log("=== END CHECKBOX CHANGE ===")
+
+                // Также отправляем сигнал изменения контента страницы
+                if (pageLoader && pageLoader.item && pageLoader.item.pageContentChanged) {
+                    pageLoader.item.pageContentChanged();
+                }
             }
         }
     }
@@ -71,6 +87,7 @@ Rectangle {
                     item.fieldLabel = itemData ? (itemData.label || itemData.name) : ""
                     item.fieldDefault = itemData ? (itemData.default || "") : ""
                     item.pageName = itemData.pageName || "Unknown Page"
+                    item.enabled = singleContainer.itemEnabled // Передаем текущее состояние
 
                     // Передаем опции только для комбобоксов и радиокнопок
                     if (itemData.type === "combobox" || itemData.type === "radiobutton") {
@@ -133,6 +150,27 @@ Rectangle {
         visible: text !== "" // Скрываем если текст пустой
     }
 
+    // Функция для обработки изменения состояния enabled
+    function handleItemEnabledChange(enabled) {
+        // Обновляем состояние загруженного компонента
+        if (fieldContent.item) {
+            fieldContent.item.enabled = enabled
+
+            // Логируем изменение состояния для всех компонентов
+            console.log("=== COMPONENT STATE UPDATE ===")
+            console.log("Page:", itemData ? itemData.pageName : "Unknown")
+            console.log("Component:", itemData ? itemData.name : "Unknown")
+            console.log("Type:", itemData ? itemData.type : "Unknown")
+            console.log("Enabled:", enabled ? "true" : "false")
+            console.log("=== END STATE UPDATE ===")
+        }
+    }
+
+    // Обработчик автоматически созданного сигнала для itemEnabled
+    onItemEnabledChanged: {
+        handleItemEnabledChange(itemEnabled)
+    }
+
     function getFieldComponent(type) {
         switch(type) {
             case "textfield": return textFieldComponent
@@ -146,7 +184,6 @@ Rectangle {
     Component {
         id: textFieldComponent
         TextFieldComponentWithoutText {
-            // anchors.fill: parent - убираем, чтобы не конфликтовать с implicit размерами
             width: parent.width
             height: parent.height
         }
