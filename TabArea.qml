@@ -233,18 +233,6 @@ Rectangle {
                 return "";
         }
     }
-
-    // Остальные существующие функции остаются без изменений...
-
-    // Старая функция для получения источника страницы
-    function getPageSource(index) {
-        var pageNames = ["Page1", "Page2", "Page3", "Page4"];
-        if (index >= 0 && index < pageNames.length) {
-            return "qrc:/Pages/" + pageNames[index] + ".qml";
-        }
-        return "qrc:/Pages/Page1.qml";
-    }
-
     // НОВЫЕ ФУНКЦИИ ДЛЯ РАБОТЫ С ДАННЫМИ
 
     // Функция для получения имени страницы по индексу
@@ -360,199 +348,68 @@ Rectangle {
             var firstName = getPageName(0)
             loadPageData(firstName)
         } else {
-            // Если страниц нет, очищаем содержимое
             clearContent()
         }
 
-        // Подключаемся к сигналу изменения данных
         pageDataChanged.connect(function(pageName, data) {
             console.log("Page data changed for:", pageName);
-            // Здесь можно добавить дополнительную обработку
         });
     }
 
-    // Функция инициализации данных страниц
     function initializePagesData() {
         pagesData = {}
 
         var availableData = getAvailablePagesData()
 
-        // Сохраняем данные по базовым именам
-        for (var dataKey in availableData) {
-            var pageData = availableData[dataKey]
-            var baseName = getBasePageName(pageData.pageName)
-            pagesData[baseName] = JSON.parse(JSON.stringify(pageData))
-            console.log("Stored data for base page:", baseName)
+        // Проверяем, что данные есть и это объект
+        if (availableData && typeof availableData === 'object') {
+            for (var dataKey in availableData) {
+                var pageData = availableData[dataKey]
+                if (pageData && pageData.pageName) {
+                    var baseName = getBasePageName(pageData.pageName)
+                    pagesData[baseName] = JSON.parse(JSON.stringify(pageData))
+                }
+            }
+            console.log("Successfully initialized pages data, total pages:", Object.keys(pagesData).length)
+        } else {
+            console.log("No valid pages data available")
         }
-
-        console.log("Available base pages:", Object.keys(pagesData))
     }
 
     function getAvailablePagesData() {
-        return {
-            "page1": {
-                "pageName": "Страница 1 - Основные настройки",
-                "layout": {
-                    "columns": 10,
-                    "rows": 6,
-                    "cellWidth": 288,
-                    "cellHeight": 90
-                },
-                "items": [
-                    {
-                        "type": "radiobutton",
-                        "name": "dataFormat",
-                        "label": "Формат данных",
-                        "options": ["NMEA 0183", "NMEA 2000", "Binary", "Custom"],
-                        "default": "NMEA 0183",
-                        "pageName": "page1", // Добавляем pageName
-                        "position": {"x": 1, "y": 1, "width": 2, "height": 1}
-                    }
-                ]
-            },
-            "page2": {
-                "pageName": "Страница 2 - Сообщения NMEA",
-                "layout": {
-                    "columns": 10,
-                    "rows": 6,
-                    "cellWidth": 225,
-                    "cellHeight": 150
-                },
-                "items": [
-                    {
-                        "type": "combobox",
-                        "name": "dataSource",
-                        "label": "Источник данных",
-                        "options": ["GP - GPS", "GL - ГЛОНАСС", "GN - ГЛОНАСС + GPS", "IN - Счисление", "EI - Ручной ввод"],
-                        "default": "GP - GPS",
-                        "pageName": "page2", // Добавляем pageName
-                        "position": {"x": 1, "y": 1, "width": 1, "height": 1}
-                    },
-                    {
-                        "type": "group",
-                        "name": "latitudeGroup",
-                        "label": "Широта",
-                        "enabled": true,
-                        "pageName": "page2", // Добавляем pageName
-                        "position": {"x": 2, "y": 1, "width": 2, "height": 1},
-                        "items": [
-                            {
-                                "type": "textfield",
-                                "name": "latitudeDegrees",
-                                "enabled": true,
-                                "description": "Градусы",
-                                "pageName": "page2", // Добавляем pageName
-                            },
-                            {
-                                "type": "textfield",
-                                "name": "latitudeMinutes",
-                                "enabled": true,
-                                "description": "Минуты",
-                                "pageName": "page2", // Добавляем pageName
-                            },
-                            {
-                                "type": "textfield",
-                                "name": "latitudeFraction",
-                                "enabled": true,
-                                "description": "Доли минут",
-                                "pageName": "page2", // Добавляем pageName
-                            }
-                        ]
-                    },
-                    {
-                        "type": "group",
-                        "name": "longitudeGroup",
-                        "label": "Долгота",
-                        "enabled": true,
-                        "pageName": "page2", // Добавляем pageName
-                        "position": {"x": 5, "y": 1, "width": 2, "height": 1},
-                        "items": [
-                            {
-                                "type": "textfield",
-                                "name": "longitudeDegrees",
-                                "enabled": true,
-                                "description": "Градусы",
-                                "pageName": "page2", // Добавляем pageName
-                            },
-                            {
-                                "type": "textfield",
-                                "name": "longitudeMinutes",
-                                "enabled": true,
-                                "description": "Минуты",
-                                "pageName": "page2", // Добавляем pageName
-                            },
-                            {
-                                "type": "textfield",
-                                "name": "longitudeFraction",
-                                "enabled": true,
-                                "description": "Доли минут",
-                                "pageName": "page2", // Добавляем pageName
-                            }
-                        ]
-                    },
-                    {
-                        "type": "combobox",
-                        "name": "quality",
-                        "label": "Качество",
-                        "options": ["0 - Обсервация не получена",
-                            "1 - Обсервация получена",
-                            "2 - Дифференциальный режим",
-                            "6 - Счисление",
-                            "7 - Ручной ввод"],
-                        "default": "0 - Обсервация не получена",
-                        "pageName": "page2", // Добавляем pageName
-                        "position": {"x": 8, "y": 1, "width": 2, "height": 1}
-                    },
-                    {
-                        "type": "textfield",
-                        "name": "satelliteCount",
-                        "label": "Количество спутников",
-                        "enabled": true,
-                        "pageName": "page2", // Добавляем pageName
-                        "position": {"x": 10, "y": 1, "width": 1, "height": 1}
-                    },
-                    {
-                        "type": "textfield",
-                        "name": "horizontalFactor",
-                        "label": "Горизонтальный геометрический фактор",
-                        "enabled": true,
-                        "pageName": "page2", // Добавляем pageName
-                        "position": {"x": 1, "y": 2, "width": 2, "height": 1}
-                    },
-                    {
-                        "type": "textfield",
-                        "name": "antennaHeight",
-                        "label": "Высота антенны над уровнем моря, м",
-                        "enabled": true,
-                        "pageName": "page2", // Добавляем pageName
-                        "position": {"x": 3, "y": 2, "width": 2, "height": 1}
-                    },
-                    {
-                        "type": "textfield",
-                        "name": "geoidHeight",
-                        "label": "Превышение геоида над эллипсоидом П3-90, м",
-                        "enabled": true,
-                        "pageName": "page2", // Добавляем pageName
-                        "position": {"x": 5, "y": 2, "width": 2, "height": 1}
-                    },
-                    {
-                        "type": "textfield",
-                        "name": "diffCorrectionAge",
-                        "label": "Возраст дифференциальных поправок, секунды",
-                        "enabled": true,
-                        "pageName": "page2", // Добавляем pageName
-                        "position": {"x": 7, "y": 2, "width": 4, "height": 1}
-                    },
-                    {
-                        "type": "textfield",
-                        "name": "stationIndicator",
-                        "label": "Индикатор дифференциальной станции",
-                        "enabled": true,
-                        "pageName": "page2", // Добавляем pageName
-                        "position": {"x": 1, "y": 3, "width": 2, "height": 1}
-                    }
-                ]
+        var jsonContent = loadJsonFileContent()
+        try {
+            // Парсим JSON строку в объект
+            return JSON.parse(jsonContent)
+        } catch (error) {
+            console.log("Error parsing JSON, using fallback data:", error.toString())
+            return getFallbackPagesData()
+        }
+    }
+
+    // Функция для загрузки сырого содержимого JSON файла
+    function loadJsonFileContent() {
+        try {
+            var xhr = new XMLHttpRequest();
+            var url = "qrc:/JsonDocuments/example.json";
+
+            console.log("Loading JSON file from:", url);
+
+            // Синхронный запрос
+            xhr.open("GET", url, false);
+            xhr.send();
+
+            if (xhr.status === 200 || xhr.status === 0) {
+                var jsonContent = xhr.responseText;
+                console.log("Successfully loaded JSON file, content length:", jsonContent.length);
+                return jsonContent;
+            } else {
+                console.log("Failed to load JSON file. Status:", xhr.status);
+                return JSON.stringify(getFallbackPagesData());
             }
+        } catch (error) {
+            console.log("Error loading JSON file:", error.toString());
+            return JSON.stringify(getFallbackPagesData());
         }
     }
 }

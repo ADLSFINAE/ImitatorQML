@@ -19,7 +19,7 @@ BaseItem {
             Row {
                 spacing: -5
                 layoutDirection: Qt.LeftToRight
-                height: 20
+                height: 15
 
                 CheckBox {
                     indicator.width: 15
@@ -28,7 +28,7 @@ BaseItem {
                 }
 
                 Text {
-                    text: "dasdas 1"
+                    text: "Контрольная сумма"
                     color: "white"
                     anchors.verticalCenter: parent.verticalCenter
                 }
@@ -36,7 +36,7 @@ BaseItem {
             Row {
                 spacing: -5
                 layoutDirection: Qt.LeftToRight
-                height: 20
+                height: 15
 
                 CheckBox {
                     indicator.width: 15
@@ -45,7 +45,7 @@ BaseItem {
                 }
 
                 Text {
-                    text: "dasdas 2"
+                    text: "CR"
                     color: "white"
                     anchors.verticalCenter: parent.verticalCenter
                 }
@@ -53,7 +53,7 @@ BaseItem {
             Row {
                 spacing: -5
                 layoutDirection: Qt.LeftToRight
-                height: 20
+                height: 15
 
                 CheckBox {
                     indicator.width: 15
@@ -62,7 +62,24 @@ BaseItem {
                 }
 
                 Text {
-                    text: "dasdas 3"
+                    text: "LF"
+                    color: "white"
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+            }
+            Row {
+                spacing: -5
+                layoutDirection: Qt.LeftToRight
+                height: 15
+
+                CheckBox {
+                    indicator.width: 15
+                    indicator.height: 15
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Text {
+                    text: "Синхронизация параметров"
                     color: "white"
                     anchors.verticalCenter: parent.verticalCenter
                 }

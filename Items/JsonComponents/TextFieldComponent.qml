@@ -44,8 +44,9 @@ Rectangle {
             height: 25
             placeholderText: fieldPlaceholder || "0"
             text: fieldDefault
-            validator: IntValidator{bottom: -20000000; top: 20000000;}
+            validator: DoubleValidator{bottom: -20000000; top: 20000000;}
             horizontalAlignment: TextField.AlignHCenter
+
 
             background: Rectangle {
                 color: "#2A2A2A"
