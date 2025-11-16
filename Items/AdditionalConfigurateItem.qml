@@ -160,6 +160,12 @@ BaseItem {
         processedData = processedData.replace(/\r$/, '')
         processedData = processedData.replace(/\n$/, '')
 
+        // Добавляем информацию о выбранных чекбоксах в конец данных
+        var checkboxInfo = getCheckboxInfoString()
+        if (checkboxInfo !== "") {
+            processedData += " " + checkboxInfo
+        }
+
         // Добавляем контрольную сумму если включена
         if (checksumEnabled) {
             processedData = addChecksum(processedData)
@@ -177,6 +183,32 @@ BaseItem {
 
         console.log("Данные после обработки:", JSON.stringify(processedData))
         return processedData
+    }
+
+    // Функция для получения строки с информацией о выбранных чекбоксах
+    function getCheckboxInfoString() {
+        var infoParts = []
+
+        // Добавляем информацию о каждом чекбоксе
+        if (checksumEnabled) {
+            infoParts.push("контрольная сумма")
+        }
+        if (crEnabled) {
+            infoParts.push("CR")
+        }
+        if (lfEnabled) {
+            infoParts.push("LF")
+        }
+        if (syncEnabled) {
+            infoParts.push("синхронизация")
+        }
+
+        // Формируем итоговую строку
+        if (infoParts.length > 0) {
+            return "Выходное сообщение: " + infoParts.join(", ")
+        }
+
+        return ""
     }
 
     // Функция для расчета контрольной суммы NMEA

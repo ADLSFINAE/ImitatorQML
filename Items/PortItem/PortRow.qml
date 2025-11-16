@@ -8,14 +8,12 @@ Rectangle {
     height: 35
     color: "#252525"
 
-    // Свойства, которые передаются из родительского компонента
     property int rowIndex
     property int portIndex: -1
     property int baudRateIndex: -1
     property bool baudRateEnabled: false
     property bool deleteEnabled: false
 
-    // Сигналы для общения с родителем
     signal removeClicked(int index)
     signal portChanged(int index, int portIndex)
     signal baudRateChanged(int index, int baudRateIndex)
@@ -25,7 +23,6 @@ Rectangle {
         anchors.margins: 2
         spacing: 5
 
-        // ComboBox для выбора порта
         CustomComboBox {
             id: portCombo
             width: 142
@@ -69,7 +66,6 @@ Rectangle {
             }
         }
 
-        // Кнопка удаления строки
         Button {
             width: 30
             height: 30
@@ -92,7 +88,6 @@ Rectangle {
             }
         }
 
-        // ComboBox для выбора скорости
         CustomComboBox {
             id: baudRateCombo
             width: 132

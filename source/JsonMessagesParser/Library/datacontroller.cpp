@@ -131,38 +131,6 @@ void BasePageStruct::initializeFromJson(const QVariantMap& jsonData)
     }
 }
 
-void DataController::processJsonItems(const QVariantList& items, BasePageStruct& pageStruct)
-{
-    for (const QVariant& item : items) {
-        if (item.canConvert<QVariantMap>()) {
-            QVariantMap itemMap = item.toMap();
-
-            if (itemMap.contains("name") && itemMap.contains("type")) {
-                QString name = itemMap["name"].toString();
-                QString type = itemMap["type"].toString();
-
-                QString defaultValue = "";
-                if (type == "combobox" || type == "radiobutton") {
-                    if (itemMap.contains("default")) {
-                        defaultValue = itemMap["default"].toString();
-                    }
-                } else if (type == "textfield") {
-                    defaultValue = "0";
-                }
-
-                if (!name.isEmpty()) {
-                    pageStruct._map[name] = defaultValue;
-                }
-            }
-
-            // Рекурсивно обрабатываем вложенные элементы
-            if (itemMap.contains("items") && itemMap["items"].canConvert<QVariantList>()) {
-                processJsonItems(itemMap["items"].toList(), pageStruct);
-            }
-        }
-    }
-}
-
 void DataController::addDataChange(const QString& pageName, const QString& componentName, const QString& componentType,
                                    const QString& newValue)
 {
@@ -175,6 +143,12 @@ void DataController::addDataChange(const QString& pageName, const QString& compo
     if (m_pageStructs.contains(pageName)) {
         m_pageStructs[pageName]._map[componentName] = newValue;
         m_pageStructs[pageName].printInfo();
+
+        // Отправляем сигнал с обновленными значениями страницы
+        QString valuesString = m_pageStructs[pageName].getAllValuesAsString();
+        emit pageValuesUpdated(pageName, valuesString);
+
+        qDebug() << "DataController: Page" << pageName << "values updated:" << valuesString;
     }
 
     QString timestamp = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
@@ -228,7 +202,6 @@ QString DataController::getAllDataAsString() const
     return result;
 }
 
-// Новые методы для работы со структурами
 QVector<QString> DataController::getPageKeys(const QString& pageName) const
 {
     if (m_pageStructs.contains(pageName)) {
@@ -250,5 +223,49 @@ void DataController::setPageValue(const QString& pageName, const QString& key, c
     if (m_pageStructs.contains(pageName)) {
         m_pageStructs[pageName]._map[key] = value;
         emit dataChanged(pageName, key, value);
+
+        // Также отправляем сигнал с обновленными значениями
+        QString valuesString = m_pageStructs[pageName].getAllValuesAsString();
+        emit pageValuesUpdated(pageName, valuesString);
+    }
+}
+
+QString DataController::getPageValuesAsString(const QString& pageName) const
+{
+    if (m_pageStructs.contains(pageName)) {
+        return m_pageStructs[pageName].getAllValuesAsString();
+    }
+    return "";
+}
+
+void DataController::processJsonItems(const QVariantList& items, BasePageStruct& pageStruct)
+{
+    for (const QVariant& item : items) {
+        if (item.canConvert<QVariantMap>()) {
+            QVariantMap itemMap = item.toMap();
+
+            if (itemMap.contains("name") && itemMap.contains("type")) {
+                QString name = itemMap["name"].toString();
+                QString type = itemMap["type"].toString();
+
+                QString defaultValue = "";
+                if (type == "combobox" || type == "radiobutton") {
+                    if (itemMap.contains("default")) {
+                        defaultValue = itemMap["default"].toString();
+                    }
+                } else if (type == "textfield") {
+                    defaultValue = "0";
+                }
+
+                if (!name.isEmpty()) {
+                    pageStruct._map[name] = defaultValue;
+                }
+            }
+
+            // Рекурсивно обрабатываем вложенные элементы
+            if (itemMap.contains("items") && itemMap["items"].canConvert<QVariantList>()) {
+                processJsonItems(itemMap["items"].toList(), pageStruct);
+            }
+        }
     }
 }

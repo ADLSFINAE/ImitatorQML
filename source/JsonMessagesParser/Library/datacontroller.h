@@ -19,6 +19,15 @@ struct BasePageStruct{
         qDebug() << "==================";
     }
 
+    // Метод для получения всех значений в виде строки через запятую
+    QString getAllValuesAsString() const {
+        QStringList values;
+        for (const QString& key : _map.keys()) {
+            values.append(_map[key]);
+        }
+        return values.join(",");
+    }
+
     // Метод для автоматического заполнения из JSON данных
     void initializeFromJson(const QVariantMap& jsonData);
 };
@@ -106,14 +115,19 @@ public:
     Q_INVOKABLE QString getPageValue(const QString& pageName, const QString& key) const;
     Q_INVOKABLE void setPageValue(const QString& pageName, const QString& key, const QString& value);
 
+    // Новый метод для получения всех значений страницы в виде строки
+    Q_INVOKABLE QString getPageValuesAsString(const QString& pageName) const;
+
 signals:
     void dataChanged(const QString& pageName, const QString& componentName,
                     const QString& newValue);
 
+    // Новый сигнал для отправки всех значений страницы в виде строки
+    void pageValuesUpdated(const QString& pageName, const QString& valuesString);
+
 private:
     QMap<QString, QVector<QString>> m_pageData;
     QMap<QString, BasePageStruct> m_pageStructs;
-
     // Вспомогательный метод для рекурсивного обхода items
     void processJsonItems(const QVariantList& items, BasePageStruct& pageStruct);
 };

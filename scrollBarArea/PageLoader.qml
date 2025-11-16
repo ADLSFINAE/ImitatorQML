@@ -55,13 +55,4 @@ Rectangle {
             }
         }
     }
-
-    // Сообщение когда нет данных (новая логика)
-    Text {
-        text: "Нет данных для отображения"
-        color: "gray"
-        font.pointSize: 12
-        anchors.centerIn: parent
-        visible: loader.status !== Loader.Ready && (!pageData.items || pageData.items.length === 0)
-    }
 }

@@ -7,7 +7,6 @@ Rectangle {
     width: 1440
     height: 100
     color: "#2D2D30"
-    clip: true
 
     property var mainWindow: null
 

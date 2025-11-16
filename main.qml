@@ -12,6 +12,9 @@ Window {
     color: "black"
     title: "Имитатор NMEA 0183"
 
+    // Свойство для выходного сообщения
+    property string outputMessage: ""
+
     Text {
         id: topCenterText
         text: "Имитатор NMEA 0183"
@@ -101,7 +104,7 @@ Window {
 
         Text {
             id: downIndicatorLeftText
-            text: "Выходное сообщение: "
+            text: "Выходное сообщение: " + mainWindow.outputMessage
             color: "white"
             anchors {
                 left: parent.left
@@ -112,7 +115,7 @@ Window {
 
         Text {
             id: downIndicatorRightText
-            text: "Символов: "
+            text: "Символов: " + mainWindow.outputMessage.length
             color: "white"
             anchors {
                 right: parent.right
@@ -120,5 +123,50 @@ Window {
                 verticalCenter: parent.verticalCenter
             }
         }
+    }
+
+    // Обработчик сигнала от DataController - ДОЛЖЕН БЫТЬ В КОРНЕВОМ ЭЛЕМЕНТЕ
+    Connections {
+        target: dataController
+        onPageValuesUpdated: {
+            console.log("MAIN QML: Page values updated signal received:", pageName, valuesString)
+            console.log("MAIN QML: Setting outputMessage to:", valuesString)
+            mainWindow.outputMessage = valuesString
+            console.log("MAIN QML: Output message updated, length:", mainWindow.outputMessage.length)
+
+            // Принудительно вызываем обновление текста
+            downIndicatorLeftText.text = "Выходное сообщение: " + valuesString
+            downIndicatorRightText.text = "Символов: " + valuesString.length
+        }
+    }
+
+    // Обработчик изменения текущей страницы
+    Connections {
+        target: uiModel
+        onCurrentPageNameChanged: {
+            console.log("MAIN QML: Current page changed to:", uiModel.currentPageName)
+            var valuesString = dataController.getPageValuesAsString(uiModel.currentPageName)
+            console.log("MAIN QML: Setting outputMessage to:", valuesString)
+            mainWindow.outputMessage = valuesString
+
+            // Принудительно вызываем обновление текста
+            downIndicatorLeftText.text = "Выходное сообщение: " + valuesString
+            downIndicatorRightText.text = "Символов: " + valuesString.length
+        }
+    }
+
+    // Инициализация при загрузке
+    Component.onCompleted: {
+        console.log("MAIN QML: Main window component completed")
+        console.log("MAIN QML: UiModel available:", uiModel !== undefined)
+        console.log("MAIN QML: DataController available:", dataController !== undefined)
+
+        var valuesString = dataController.getPageValuesAsString(uiModel.currentPageName)
+        console.log("MAIN QML: Initial output message:", valuesString)
+        mainWindow.outputMessage = valuesString
+
+        // Принудительно вызываем обновление текста
+        downIndicatorLeftText.text = "Выходное сообщение: " + valuesString
+        downIndicatorRightText.text = "Символов: " + valuesString.length
     }
 }

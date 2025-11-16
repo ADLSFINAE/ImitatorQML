@@ -17,6 +17,9 @@ Rectangle {
     property string currentPageName: uiModel.currentPageName
     property color currentPageColor: uiModel.currentPageColor
 
+    // Флаг для отслеживания первой инициализации
+    property bool firstInitialization: true
+
     // Сигнал для сбора данных (для обратной совместимости)
     signal pageDataChanged(string pageName, var collectedData)
 
@@ -150,17 +153,6 @@ Rectangle {
         }
     }
 
-    // Состояние когда нет страниц
-    Text {
-        id: noPagesText
-        anchors.centerIn: parent
-        text: "Нет доступных страниц\nОткройте окно сообщений для выбора страниц"
-        color: "white"
-        font.pointSize: 14
-        horizontalAlignment: Text.AlignHCenter
-        visible: pagesListModel.count === 0
-    }
-
     // Функция для обновления модели страниц
     function updateModel() {
         console.log("=== UPDATING PAGES MODEL ===")
@@ -191,6 +183,7 @@ Rectangle {
 
         // Обновляем видимость текста "нет страниц"
         noPagesText.visible = pagesListModel.count === 0
+        createFirstPageButton.visible = pagesListModel.count === 0
 
         // Проверяем синхронизацию
         if (pagesListModel.count !== uiModel.pageNames.length) {
@@ -297,6 +290,7 @@ Rectangle {
         uiModel.pageAdded.connect(function(pageName) {
             console.log("UiModel: pageAdded signal -", pageName)
             updateModel()
+            firstInitialization = false
         })
 
         uiModel.pageRemoved.connect(function(index) {
@@ -325,13 +319,38 @@ Rectangle {
         // Инициализируем модель если UiModel уже готов
         if (uiModel.isInitialized) {
             console.log("UiModel already initialized, updating pages model")
-            updateModel()
+            // При первой инициализации не обновляем модель, чтобы не показывать автоматически созданные страницы
+            if (!firstInitialization) {
+                updateModel()
+            } else {
+                console.log("Skipping initial model update to avoid showing auto-created pages")
+                // Очищаем любые автоматически созданные страницы
+                if (uiModel.pageNames && uiModel.pageNames.length > 0) {
+                    console.log("Clearing auto-created pages on startup")
+                    // Удаляем все страницы, которые могли быть созданы автоматически
+                    for (var i = uiModel.pageNames.length - 1; i >= 0; i--) {
+                        uiModel.deletePage(i)
+                    }
+                }
+            }
         } else {
             console.log("Waiting for UiModel initialization...")
             uiModel.isInitializedChanged.connect(function() {
                 if (uiModel.isInitialized) {
-                    console.log("UiModel initialized signal received, updating pages model")
-                    updateModel()
+                    console.log("UiModel initialized signal received")
+                    // При первой инициализации не показываем автоматически созданные страницы
+                    if (!firstInitialization) {
+                        updateModel()
+                    } else {
+                        console.log("Skipping initial model update to avoid showing auto-created pages")
+                        // Очищаем любые автоматически созданные страницы
+                        if (uiModel.pageNames && uiModel.pageNames.length > 0) {
+                            console.log("Clearing auto-created pages on startup")
+                            for (var i = uiModel.pageNames.length - 1; i >= 0; i--) {
+                                uiModel.deletePage(i)
+                            }
+                        }
+                    }
                 }
             })
         }
