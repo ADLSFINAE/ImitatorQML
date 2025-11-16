@@ -9,6 +9,7 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         source/JsonMessagesParser/Library/datacontroller.cpp \
+        source/JsonMessagesParser/Library/jsonparser.cpp \
         source/PortItem/backend.cpp
 
 RESOURCES += qml.qrc \
@@ -28,6 +29,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     source/JsonMessagesParser/Library/datacontroller.h \
+    source/JsonMessagesParser/Library/jsonparser.h \
     source/PortItem/backend.h
 
 DISTFILES +=

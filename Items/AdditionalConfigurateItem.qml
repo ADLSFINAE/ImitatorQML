@@ -8,8 +8,14 @@ BaseItem {
 
     // Окно сообщений
     property var messagesWindow: null
-    property var tabArea: null  // Ссылка на TabArea (старая логика)
-    property var messagesItem: null  // Ссылка на MessageItem (новая логика)
+    property var tabArea: null
+    property var messagesItem: null
+
+    // Свойства для чекбоксов
+    property bool checksumEnabled: false
+    property bool crEnabled: false
+    property bool lfEnabled: false
+    property bool syncEnabled: false
 
     Row{
         Column{
@@ -22,9 +28,15 @@ BaseItem {
                 height: 15
 
                 CheckBox {
+                    id: checksumCheckBox
                     indicator.width: 15
                     indicator.height: 15
                     anchors.verticalCenter: parent.verticalCenter
+                    checked: additionalConfigurateItem.checksumEnabled
+                    onCheckedChanged: {
+                        additionalConfigurateItem.checksumEnabled = checked
+                        console.log("Контрольная сумма:", checked ? "включена" : "выключена")
+                    }
                 }
 
                 Text {
@@ -39,9 +51,15 @@ BaseItem {
                 height: 15
 
                 CheckBox {
+                    id: crCheckBox
                     indicator.width: 15
                     indicator.height: 15
                     anchors.verticalCenter: parent.verticalCenter
+                    checked: additionalConfigurateItem.crEnabled
+                    onCheckedChanged: {
+                        additionalConfigurateItem.crEnabled = checked
+                        console.log("CR:", checked ? "включен" : "выключен")
+                    }
                 }
 
                 Text {
@@ -56,9 +74,16 @@ BaseItem {
                 height: 15
 
                 CheckBox {
+                    id: lfCheckBox
                     indicator.width: 15
                     indicator.height: 15
                     anchors.verticalCenter: parent.verticalCenter
+                    checked: additionalConfigurateItem.lfEnabled
+                    onCheckedChanged: {
+                        additionalConfigurateItem.lfEnabled = checked
+                        console.log("LF:", checked ? "включен" : "выключен")
+                        backend.shitten()
+                    }
                 }
 
                 Text {
@@ -73,9 +98,15 @@ BaseItem {
                 height: 15
 
                 CheckBox {
+                    id: syncCheckBox
                     indicator.width: 15
                     indicator.height: 15
                     anchors.verticalCenter: parent.verticalCenter
+                    checked: additionalConfigurateItem.syncEnabled
+                    onCheckedChanged: {
+                        additionalConfigurateItem.syncEnabled = checked
+                        console.log("Синхронизация параметров:", checked ? "включена" : "выключена")
+                    }
                 }
 
                 Text {
@@ -120,7 +151,56 @@ BaseItem {
         }
     }
 
-    // Функция открытия окна сообщений
+    // Функция для модификации данных перед отправкой
+    function processDataBeforeSending(data) {
+        var processedData = data
+
+        // Удаляем возможные завершающие символы CR/LF если они уже есть
+        processedData = processedData.replace(/\r\n$/, '')
+        processedData = processedData.replace(/\r$/, '')
+        processedData = processedData.replace(/\n$/, '')
+
+        // Добавляем контрольную сумму если включена
+        if (checksumEnabled) {
+            processedData = addChecksum(processedData)
+        }
+
+        // Добавляем CR если включен
+        if (crEnabled) {
+            processedData += '\r'
+        }
+
+        // Добавляем LF если включен
+        if (lfEnabled) {
+            processedData += '\n'
+        }
+
+        console.log("Данные после обработки:", JSON.stringify(processedData))
+        return processedData
+    }
+
+    // Функция для расчета контрольной суммы NMEA
+    function addChecksum(data) {
+        // Для NMEA сообщений контрольная сумма рассчитывается как XOR всех байт между $ и *
+        var checksum = 0
+        var startIndex = data.indexOf('$')
+        var endIndex = data.indexOf('*')
+
+        if (startIndex !== -1 && endIndex === -1) {
+            // Если нет существующей контрольной суммы, рассчитываем
+            for (var i = startIndex + 1; i < data.length; i++) {
+                var charCode = data.charCodeAt(i)
+                checksum ^= charCode
+            }
+
+            // Добавляем контрольную сумму в формате *XX
+            data += '*' + checksum.toString(16).toUpperCase().padStart(2, '0')
+        }
+
+        return data
+    }
+
+    // Остальные функции остаются без изменений
     function openMessagesWindow() {
         if (!messagesWindow) {
             var component = Qt.createComponent("qrc:/Items/AdditionalConfigurateItem/MessagesWindow.qml")
@@ -132,21 +212,15 @@ BaseItem {
         }
 
         if (messagesWindow) {
-            // Передаем текущие сообщения для синхронизации (НОВАЯ ЛОГИКА)
             var currentMessages = getCurrentMessagesFromMessageItem()
             messagesWindow.initializeWithExistingPages(currentMessages)
             messagesWindow.show()
         }
     }
 
-    // Обработчики сигналов окна сообщений
     function onMessagesSaved(selectedItems) {
         console.log("Сохранены выбранные сообщения:", selectedItems)
-
-        // НОВАЯ ЛОГИКА - добавляем в MessageItem
         syncMessagesWithMessageItem(selectedItems)
-
-        // СТАРАЯ ЛОГИКА - добавляем в TabArea (оставляем для обратной совместимости)
         addPagesToTabArea(selectedItems)
     }
 
@@ -154,9 +228,6 @@ BaseItem {
         console.log("Диалог сообщений отменен")
     }
 
-    // ========== НОВАЯ ЛОГИКА - РАБОТА С MessageItem ==========
-
-    // Функция для получения текущих сообщений из MessageItem
     function getCurrentMessagesFromMessageItem() {
         if (!messagesItem) {
             findMessageItem()
@@ -171,7 +242,6 @@ BaseItem {
         return currentMessages
     }
 
-    // Функция синхронизации сообщений с MessageItem
     function syncMessagesWithMessageItem(selectedItems) {
         if (!messagesItem) {
             findMessageItem()
@@ -180,7 +250,6 @@ BaseItem {
         if (messagesItem && messagesItem.messagesModel) {
             var selectedSet = new Set(selectedItems)
 
-            // Удаляем сообщения, которых нет в выбранных
             for (var i = messagesItem.messagesModel.count - 1; i >= 0; i--) {
                 var messageText = messagesItem.messagesModel.get(i).text
                 if (!selectedSet.has(messageText)) {
@@ -189,12 +258,10 @@ BaseItem {
                 }
             }
 
-            // Добавляем новые выбранные сообщения
             for (var j = 0; j < selectedItems.length; j++) {
                 var newMessageText = selectedItems[j]
                 var exists = false
 
-                // Проверяем, есть ли уже такое сообщение
                 for (var k = 0; k < messagesItem.messagesModel.count; k++) {
                     if (messagesItem.messagesModel.get(k).text === newMessageText) {
                         exists = true
@@ -215,7 +282,6 @@ BaseItem {
         }
     }
 
-    // Функция поиска MessageItem
     function findMessageItem() {
         var parentItem = parent
         while (parentItem) {
@@ -227,7 +293,6 @@ BaseItem {
             parentItem = parentItem.parent
         }
 
-        // Альтернативный поиск по id
         if (!messagesItem) {
             var root = parent
             while (root && root.parent) {
@@ -237,20 +302,15 @@ BaseItem {
         }
     }
 
-    // ========== СТАРАЯ ЛОГИКА - РАБОТА С TabArea ==========
-
-    // Функция для добавления страниц в TabArea (СТАРАЯ ЛОГИКА)
     function addPagesToTabArea(selectedItems) {
         if (!tabArea) {
             findTabArea()
         }
 
         if (tabArea && tabArea.pagesModel) {
-            // Добавляем каждое выбранное сообщение как новую страницу
             for (var i = 0; i < selectedItems.length; i++) {
                 var pageName = selectedItems[i]
 
-                // Проверяем, нет ли уже такой страницы
                 var exists = false
                 for (var j = 0; j < tabArea.pagesModel.count; j++) {
                     if (tabArea.pagesModel.get(j).pageName === pageName) {
@@ -272,7 +332,6 @@ BaseItem {
         }
     }
 
-    // Функция поиска TabArea (СТАРАЯ ЛОГИКА)
     function findTabArea() {
         var parentItem = parent
         while (parentItem) {
@@ -284,7 +343,6 @@ BaseItem {
             parentItem = parentItem.parent
         }
 
-        // Альтернативный поиск по id
         if (!tabArea) {
             var root = parent
             while (root && root.parent) {
@@ -294,7 +352,6 @@ BaseItem {
         }
     }
 
-    // Вспомогательная функция для поиска дочерних элементов
     function findChild(item, objectName) {
         if (item.objectName === objectName) {
             return item
@@ -311,10 +368,8 @@ BaseItem {
         return null
     }
 
-    // Инициализация при создании компонента
     Component.onCompleted: {
-        findTabArea()    // Старая логика
-        findMessageItem() // Новая логика
+        findTabArea()
+        findMessageItem()
     }
 }
-
