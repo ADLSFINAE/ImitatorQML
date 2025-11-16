@@ -8,8 +8,9 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        source/JsonMessagesParser/jsonmodel.cpp \
-        source/JsonMessagesParser/uimodel.cpp \
+        source/JsonMessagesParser/Library/datacontroller.cpp \
+        source/JsonMessagesParser/Library/jsonparser.cpp \
+        source/JsonMessagesParser/Library/uimodel.cpp \
         source/PortItem/backend.cpp
 
 RESOURCES += qml.qrc \
@@ -28,8 +29,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    source/JsonMessagesParser/jsonmodel.h \
-    source/JsonMessagesParser/uimodel.h \
+    source/JsonMessagesParser/Library/datacontroller.h \
+    source/JsonMessagesParser/Library/jsonparser.h \
+    source/JsonMessagesParser/Library/uimodel.h \
     source/PortItem/backend.h
 
 DISTFILES +=

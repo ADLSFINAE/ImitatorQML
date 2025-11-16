@@ -1,52 +1,346 @@
-[
-    {
-        "pageId": "page1",
-        "pageName": "Страница 1 - Форма ввода",
+{
+    "page1": {
+        "pageName": "Страница 1 - ADJ",
+        "layout": {
+            "columns": 7,
+            "rows": 6,
+            "cellWidth": 288,
+            "cellHeight": 90
+        },
         "items": [
             {
                 "type": "textfield",
-                "name": "firstName",
-                "label": "Имя",
-                "default": "Иван"
+                "name": "Курс репитера 0",
+                "label": "Курс репитера 0",
+                "enabled": true,
+                "pageName": "page1",
+                "position": {"x": 1, "y": 1, "width": 1, "height": 1}
             },
             {
                 "type": "textfield",
-                "name": "lastName",
-                "label": "Фамилия",
-                "default": "Петров"
+                "name": "Курс репитера 90",
+                "label": "Курс репитера 90",
+                "enabled": true,
+                "pageName": "page1",
+                "position": {"x": 2, "y": 1, "width": 1, "height": 1}
             },
             {
                 "type": "textfield",
-                "name": "email",
-                "label": "Email",
-                "default": "test@example.com"
+                "name": "Курс репитера 180",
+                "label": "Курс репитера 180",
+                "enabled": true,
+                "pageName": "page1",
+                "position": {"x": 3, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "textfield",
+                "name": "Курс репитера 270",
+                "label": "Курс репитера 270",
+                "enabled": true,
+                "pageName": "page1",
+                "position": {"x": 4, "y": 1, "width": 1, "height": 1}
             }
         ]
     },
-    {
-        "pageId": "page2",
-        "pageName": "Страница 2 - Настройки",
+    "page2": {
+        "pageName": "Страница 2 - DBT",
+        "layout": {
+            "columns": 5,
+            "rows": 6,
+            "cellWidth": 225,
+            "cellHeight": 150
+        },
+        "items": [
+            {
+                "type": "textfield",
+                "name": "Глубина, м",
+                "label": "Глубина, м",
+                "enabled": true,
+                "pageName": "page2",
+                "position": {"x": 1, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "textfield",
+                "name": "Заданная (опасная) глубина, м",
+                "label": "Заданная (опасная) глубина, м",
+                "enabled": true,
+                "pageName": "page2",
+                "position": {"x": 2, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "combobox",
+                "name": "Статус",
+                "label": "Статус",
+                "options": ["A - Данные верны", "V - Данные неверны"],
+                "default": "A - Данные верны",
+                "pageName": "page2",
+                "position": {"x": 3, "y": 1, "width": 1, "height": 1}
+            }
+        ]
+    },
+    "page3": {
+        "pageName": "Страница 3 - DPT",
+        "layout": {
+            "columns": 5,
+            "rows": 6,
+            "cellWidth": 225,
+            "cellHeight": 150
+        },
+        "items": [
+            {
+                "type": "textfield",
+                "name": "Глубина под килем, м",
+                "label": "Глубина под килем, м",
+                "enabled": true,
+                "pageName": "page3",
+                "position": {"x": 1, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "textfield",
+                "name": "Смещение от датчик, м",
+                "label": "Смещение от датчик, м",
+                "enabled": true,
+                "pageName": "page3",
+                "position": {"x": 2, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "combobox",
+                "name": "Признак достоверности глубины",
+                "label": "Признак достоверности глубины",
+                "options": ["A - Данные верны", "V - Данные неверны"],
+                "default": "A - Данные верны",
+                "pageName": "page3",
+                "position": {"x": 3, "y": 1, "width": 1, "height": 1}
+            }
+        ]
+    },
+    "page4": {
+        "pageName": "Страница 4 - DTM",
+        "layout": {
+            "columns": 6,
+            "rows": 6,
+            "cellWidth": 225,
+            "cellHeight": 150
+        },
         "items": [
             {
                 "type": "combobox",
-                "name": "language",
-                "label": "Язык",
-                "options": ["Русский", "Английский", "Немецкий"],
-                "default": "Русский"
+                "name": "Источник данных",
+                "label": "Источник данных",
+                "options": ["GP - GPS", "GL - ГЛОНАСС", "GN - ГЛОНАСС + GPS", "IN - Инерциальная система"],
+                "default": "GP - GPS",
+                "pageName": "page4",
+                "position": {"x": 1, "y": 1, "width": 1, "height": 1}
             },
             {
                 "type": "combobox",
-                "name": "theme",
-                "label": "Тема",
-                "options": ["Светлая", "Темная", "Авто"],
-                "default": "Светлая"
+                "name": "Используемая система координат",
+                "label": "Используемая система координат",
+                "options": ["W84-WGS-84", "Р90-ПЗ-90", "Р92-ПЗ-90.02", "С42-СК-42", "С95-СК-95"],
+                "default": "W84-WGS-84",
+                "pageName": "page4",
+                "position": {"x": 2, "y": 1, "width": 1, "height": 1}
             },
             {
-                "type": "checkbox",
-                "name": "notifications",
-                "label": "Включить уведомления",
-                "default": "true"
+                "type": "combobox",
+                "name": "Подкод системы координат",
+                "label": "Подкод системы координат",
+                "options": ["A-ПСК №1", "B-ПСК №2", "P-ПСК №1", "C-ПСК №3", "D-ПСК №4", "E-ПСК №5"],
+                "default": "A-ПСК №1",
+                "pageName": "page4",
+                "position": {"x": 3, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "group",
+                "name": "Отклонение по широте, минуты",
+                "label": "Отклонение по широте, минуты",
+                "enabled": true,
+                "pageName": "page4",
+                "position": {"x": 4, "y": 1, "width": 2, "height": 1},
+                "items": [
+                    {
+                        "type": "textfield",
+                        "name": "Отклонение по широте, минуты 1",
+                        "enabled": true,
+                        "description": "Градусы",
+                        "pageName": "page4"
+                    },
+                    {
+                        "type": "radiobutton",
+                        "name": "Отклонение по широте, минуты 2",
+                        "label": "Формат данных",
+                        "options": ["Север (N)", "Юг (S)"],
+                        "default": "Север (N)",
+                        "pageName": "page4"
+                    }
+                ]
+            },
+            {
+                "type": "group",
+                "name": "Отклонение по долготе, минуты",
+                "label": "Отклонение по долготе, минуты",
+                "enabled": true,
+                "pageName": "page4",
+                "position": {"x": 5, "y": 1, "width": 2, "height": 1},
+                "items": [
+                    {
+                        "type": "textfield",
+                        "name": "Отклонение по долготе, минуты 1",
+                        "enabled": true,
+                        "description": "Градусы",
+                        "pageName": "page4"
+                    },
+                    {
+                        "type": "radiobutton",
+                        "name": "Отклонение по долготе, минуты 2",
+                        "label": "Формат данных",
+                        "options": ["Север (N)", "Юг (S)"],
+                        "default": "Север (N)",
+                        "pageName": "page4"
+                    }
+                ]
+            },
+            {
+                "type": "textfield",
+                "name": "Отклонение по высоте, м",
+                "label": "Отклонение по высоте, м",
+                "enabled": true,
+                "pageName": "page4",
+                "position": {"x": 6, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "combobox",
+                "name": "Эталонная система координат",
+                "label": "Эталонная система координат",
+                "options": ["W84-WGS-84", "Р90-ПЗ-90", "Р92-ПЗ-90.02", "С42-СК-42", "С95-СК-95"],
+                "default": "W84-WGS-84",
+                "pageName": "page4",
+                "position": {"x": 1, "y": 2, "width": 1, "height": 1}
+            }
+        ]
+    },
+    "page5": {
+        "pageName": "Страница 5 - ELH",
+        "layout": {
+            "columns": 5,
+            "rows": 6,
+            "cellWidth": 225,
+            "cellHeight": 150
+        },
+        "items": [
+            {
+                "type": "combobox",
+                "name": "Источник данных",
+                "label": "Источник данных",
+                "options": ["IN - Инерциальная система", "HE - Гирокомпас"],
+                "default": "IN - Инерциальная система",
+                "pageName": "page5",
+                "position": {"x": 1, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "textfield",
+                "name": "Угол бортовой качки",
+                "label": "Угол бортовой качки",
+                "enabled": true,
+                "pageName": "page5",
+                "position": {"x": 2, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "textfield",
+                "name": "Угол килевой качки",
+                "label": "Угол килевой качки",
+                "enabled": true,
+                "pageName": "page5",
+                "position": {"x": 3, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "textfield",
+                "name": "Вертикальная составляющая мгновенной скорости, м/с",
+                "label": "Вертикальная составляющая мгновенной скорости, м/с",
+                "enabled": true,
+                "pageName": "page5",
+                "position": {"x": 4, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "textfield",
+                "name": "Перемещение вертикальное, м",
+                "label": "Перемещение вертикальное, м",
+                "enabled": true,
+                "pageName": "page5",
+                "position": {"x": 5, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "textfield",
+                "name": "Угловая скорость бортовой качки",
+                "label": "Угловая скорость бортовой качки",
+                "enabled": true,
+                "pageName": "page5",
+                "position": {"x": 1, "y": 2, "width": 1, "height": 1}
+            },
+            {
+                "type": "textfield",
+                "name": "Угловая скорость килевой качки",
+                "label": "Угловая скорость килевой качки",
+                "enabled": true,
+                "pageName": "page5",
+                "position": {"x": 2, "y": 2, "width": 1, "height": 1}
+            }
+        ]
+    },
+    "page6": {
+        "pageName": "Страница 6 - ERR",
+        "layout": {
+            "columns": 6,
+            "rows": 6,
+            "cellWidth": 225,
+            "cellHeight": 150
+        },
+        "items": [
+            {
+                "type": "combobox",
+                "name": "Исправность ГАЛ",
+                "label": "Исправность ГАЛ",
+                "options": ["0 - Исправен", "1 - Не исправен"],
+                "default": "0 - Исправен",
+                "pageName": "page6",
+                "position": {"x": 1, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "combobox",
+                "name": "Разность значения скорости",
+                "label": "Источник данных",
+                "options": ["0 - пп и пр <0.03уз.", "1 - пр>0.03уз. пп<0.03уз.", "2 - пр<0.03уз. пп>0.03уз.", "3 - пр пп > 0.03уз."],
+                "default": "0 - пп и пр <0.03уз.",
+                "pageName": "page6",
+                "position": {"x": 2, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "combobox",
+                "name": "Готовность ГАЛ",
+                "label": "Готовность ГАЛ",
+                "options": ["0 - Готов", "1 - Не готов"],
+                "default": "0 - Готов",
+                "pageName": "page6",
+                "position": {"x": 3, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "combobox",
+                "name": "Контроль",
+                "label": "Контроль",
+                "options": ["0 - Рабочий", "1 - Тестовый"],
+                "default": "0 - Рабочий",
+                "pageName": "page6",
+                "position": {"x": 4, "y": 1, "width": 1, "height": 1}
+            },
+            {
+                "type": "combobox",
+                "name": "Антенна",
+                "label": "Антенна",
+                "options": ["1 - Низкочастотный", "0 - Высокочастотный"],
+                "default": "1 - Низкочастотный",
+                "pageName": "page6",
+                "position": {"x": 5, "y": 1, "width": 1, "height": 1}
             }
         ]
     }
-]
+}

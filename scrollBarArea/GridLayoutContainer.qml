@@ -1,5 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQml 2.12
 
 Item {
     id: gridContainer
@@ -31,7 +32,7 @@ Item {
             var xPos = (position.x - 1) * (width / (layoutConfig.columns || 1))
             var yPos = (position.y - 1) * (height / (layoutConfig.rows || 1))
             var itemWidth = (position.width || 1) * (width / (layoutConfig.columns || 1))
-            var itemHeight = (position.height || 1) * (height / (layoutConfig.rows || 1))
+            var itemHeight = 300
 
             if (itemData.type === "group") {
                 createGroup(itemData, xPos, yPos, itemWidth, itemHeight)

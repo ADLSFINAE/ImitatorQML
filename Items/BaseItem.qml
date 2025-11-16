@@ -6,7 +6,6 @@ Rectangle {
     color: "#252525"
     border.color: "#404040"
     border.width: 1
-    radius: 3
 
     // Свойство для заголовка - можно изменять
     property string itemTitle: "Заголовок"

@@ -18,11 +18,39 @@ Window {
 
     function initializeWithExistingPages(pages) {
         existingPages = pages || []
+        console.log("Initializing with existing pages:", existingPages)
+        updateCheckboxes()
+    }
+
+    function updateCheckboxes() {
         // Устанавливаем галочки для уже существующих страниц
         for (var i = 0; i < messagesModel.count; i++) {
             var messageName = messagesModel.get(i).name
             var isChecked = existingPages.indexOf(messageName) !== -1
             messagesModel.setProperty(i, "checked", isChecked)
+        }
+        console.log("Updated checkboxes for", existingPages.length, "existing pages")
+    }
+
+    function loadAvailablePages() {
+        // Загружаем доступные страницы из UiModel
+        if (typeof uiModel !== 'undefined') {
+            var availablePages = uiModel.getAllAvailablePageNames()
+            console.log("Loading available pages from UiModel:", availablePages)
+            setMessages(availablePages)
+
+            // Обновляем существующие страницы
+            var currentPages = uiModel.getCurrentPageNames()
+            console.log("Current pages in UiModel:", currentPages)
+            initializeWithExistingPages(currentPages)
+        } else {
+            console.log("UiModel not available, using default pages")
+            // Используем стандартный набор страниц
+            var defaultPages = [
+                "Страница 1 - ADJ", "Страница 2 - DBT", "Страница 3 - DPT",
+                "Страница 4 - DTM", "Страница 5 - ELH", "Страница 6 - ERR"
+            ]
+            setMessages(defaultPages)
         }
     }
 
@@ -59,14 +87,6 @@ Window {
                     id: messagesList
                     model: ListModel {
                         id: messagesModel
-                        ListElement { name: "Страница 1"; checked: false }
-                        ListElement { name: "Страница 2"; checked: false }
-                        ListElement { name: "Страница 3"; checked: false }
-                        ListElement { name: "Страница 4"; checked: false }
-                        ListElement { name: "Страница 5"; checked: false }
-                        ListElement { name: "Страница 6"; checked: false }
-                        ListElement { name: "Страница 7"; checked: false }
-                        ListElement { name: "Страница 8"; checked: false }
                     }
 
                     delegate: Rectangle {
@@ -117,6 +137,7 @@ Window {
                                     selected.push(messagesModel.get(i).name)
                                 }
                             }
+                            console.log("Saving selected pages:", selected)
                             messagesWindow.selectedMessages = selected
                             messagesWindow.saved(selected)
                             messagesWindow.close()
@@ -129,6 +150,7 @@ Window {
                         height: 30
 
                         onClicked: {
+                            console.log("Messages window canceled")
                             messagesWindow.canceled()
                             messagesWindow.close()
                         }
@@ -166,6 +188,24 @@ Window {
         messagesModel.clear()
         for (var i = 0; i < messages.length; i++) {
             messagesModel.append({"name": messages[i], "checked": false})
+        }
+        console.log("Loaded", messages.length, "pages to messages window")
+    }
+
+    Component.onCompleted: {
+        console.log("MessagesWindow component completed")
+        loadAvailablePages()
+    }
+
+    onVisibleChanged: {
+        if (visible) {
+            // При каждом открытии окна обновляем список существующих страниц
+            console.log("MessagesWindow became visible, refreshing data")
+            if (typeof uiModel !== 'undefined') {
+                var currentPages = uiModel.getCurrentPageNames()
+                console.log("Refreshing with current pages:", currentPages)
+                initializeWithExistingPages(currentPages)
+            }
         }
     }
 }
