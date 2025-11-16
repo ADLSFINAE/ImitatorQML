@@ -5,17 +5,18 @@ BaseItem {
     id: configurateItem
     itemTitle: "Конфигурация"
 
+    // Специфичный для конфигурации контент
     Column {
         anchors.centerIn: parent
         spacing: 10
 
         Text {
-            text: "Настройки"
+            text: "Основные настройки"
             color: "white"
             font.pointSize: 12
             anchors.horizontalCenter: parent.horizontalCenter
         }
 
-
+        // Здесь будут элементы конфигурации
     }
 }

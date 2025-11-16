@@ -11,28 +11,20 @@ Rectangle {
 
     property var pageData: ({})
     property string pageName: ""
-    property bool someBoolProperty: false
+    property bool someBoolProperty: false // или удалите проблемное свойство
 
-    // Добавить в корневой элемент:
-    signal pageContentChanged()
-
-    // И подключить к нему сбор данных:
-    onPageContentChanged: {
-        if (tabArea) {
-            tabArea.collectPageData();
-        }
-    }
-
+    // Основной Loader для загрузки QML страниц (старая логика)
     Loader {
         id: loader
         anchors.fill: parent
         source: parent.source
     }
 
+    // НОВАЯ ЛОГИКА - отображение JSON данных с GridLayout
     Rectangle {
         id: jsonContent
         anchors.fill: parent
-        color: "#303030"
+        color: "transparent"
         visible: loader.status !== Loader.Ready && pageData.items && pageData.items.length > 0
 
         Column {

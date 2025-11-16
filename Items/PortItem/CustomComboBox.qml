@@ -16,6 +16,7 @@ ComboBox {
         color: control.backgroundColor
         border.color: control.borderColor
         border.width: control.borderWidth
+        radius: 2
     }
 
     contentItem: Text {
@@ -72,6 +73,7 @@ ComboBox {
             color: control.backgroundColor
             border.color: control.borderColor
             border.width: control.borderWidth
+            radius: 2
         }
     }
 

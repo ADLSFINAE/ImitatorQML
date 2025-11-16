@@ -9,7 +9,7 @@ Window {
     visible: true
     width: 1440
     height: 760
-    color: "black"
+    color: "#202020"
     title: "Имитатор NMEA 0183"
 
     Text {
@@ -56,7 +56,7 @@ Window {
                 Rectangle {
                     width: parent.width
                     height: parent.height - 100
-                    color: "#303030"
+                    color: "transparent"
 
                     TabArea {
                         anchors.fill: parent

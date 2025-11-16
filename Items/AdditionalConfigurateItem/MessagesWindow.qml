@@ -67,40 +67,6 @@ Window {
                         ListElement { name: "Страница 6"; checked: false }
                         ListElement { name: "Страница 7"; checked: false }
                         ListElement { name: "Страница 8"; checked: false }
-                        ListElement { name: "Страница 9"; checked: false }
-                        ListElement { name: "Страница 10"; checked: false }
-                        ListElement { name: "Страница 11"; checked: false }
-                        ListElement { name: "Страница 12"; checked: false }
-                        ListElement { name: "Страница 13"; checked: false }
-                        ListElement { name: "Страница 14"; checked: false }
-                        ListElement { name: "Страница 15"; checked: false }
-                        ListElement { name: "Страница 16"; checked: false }
-                        ListElement { name: "Страница 17"; checked: false }
-                        ListElement { name: "Страница 18"; checked: false }
-                        ListElement { name: "Страница 19"; checked: false }
-                        ListElement { name: "Страница 20"; checked: false }
-                        ListElement { name: "Страница 21"; checked: false }
-                        ListElement { name: "Страница 22"; checked: false }
-                        ListElement { name: "Страница 23"; checked: false }
-                        ListElement { name: "Страница 24"; checked: false }
-                        ListElement { name: "Страница 25"; checked: false }
-                        ListElement { name: "Страница 26"; checked: false }
-                        ListElement { name: "Страница 27"; checked: false }
-                        ListElement { name: "Страница 28"; checked: false }
-                        ListElement { name: "Страница 29"; checked: false }
-                        ListElement { name: "Страница 30"; checked: false }
-                        ListElement { name: "Страница 31"; checked: false }
-                        ListElement { name: "Страница 32"; checked: false }
-                        ListElement { name: "Страница 33"; checked: false }
-                        ListElement { name: "Страница 34"; checked: false }
-                        ListElement { name: "Страница 35"; checked: false }
-                        ListElement { name: "Страница 36"; checked: false }
-                        ListElement { name: "Страница 37"; checked: false }
-                        ListElement { name: "Страница 38"; checked: false }
-                        ListElement { name: "Страница 39"; checked: false }
-                        ListElement { name: "Страница 40"; checked: false }
-                        ListElement { name: "Страница 41"; checked: false }
-                        ListElement { name: "Страница 42"; checked: false }
                     }
 
                     delegate: Rectangle {

@@ -74,7 +74,6 @@ Rectangle {
                         case "textfield": return textFieldComponent
                         case "combobox": return comboBoxComponent
                         case "checkbox": return checkBoxComponent
-                        case "radiobutton": return radioButtonComponent
                         default: return textFieldComponent
                     }
                 }

@@ -5,6 +5,7 @@ Rectangle {
     id: scrollBar
     height: 5
     color: "#404040"
+    radius: 3
     
     property ListView listView: null
     
@@ -14,7 +15,8 @@ Rectangle {
         id: scrollBarHandle
         height: parent.height
         width: listView ? (listView.width / listView.contentWidth) * parent.width : 0
-        color: "black"
+        color: "#808080"
+        radius: 3
         x: listView ? (listView.contentX / listView.contentWidth) * parent.width : 0
 
         Behavior on x {

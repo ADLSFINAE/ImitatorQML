@@ -1,28 +1,25 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 import "scrollBarArea"
-import QtQml 2.12
 
 Rectangle {
     id: tabArea
     objectName: "tabArea"
     color: "#2D2D30"
 
-    // Свойства для настройки
+    // Свойства для настройки (из старого кода)
     property alias pagesModel: buttonListView.model
     property alias currentPageSource: pageLoader.source
+
+    // Свойство для хранения цвета
     property color currentPageColor: "blue"
 
     // Новые свойства для данных
     property var currentPageData: ({})
     property string currentPageName: ""
     property var pagesData: ({})
-    property var pagesLayoutData: ({})
 
-    // Сигнал для сбора данных при изменении
-    signal pageDataChanged(string pageName, var collectedData)
-
-    // Компоненты
+    // Компоненты (старый код)
     PagesListView {
         id: buttonListView
         anchors {
@@ -38,6 +35,7 @@ Rectangle {
             var pageName = getPageName(index)
             loadPageData(pageName)
 
+            // Старая логика цвета
             var colors = ["blue", "green", "red", "purple", "orange", "teal"]
             currentPageColor = colors[index % colors.length]
         }
@@ -45,7 +43,10 @@ Rectangle {
         onPageAddClicked: function(index, newPageName) {
             var originalPageName = getPageName(index)
             var originalBaseName = getBasePageName(originalPageName)
+
+            // Автоматически загружаем данные для новой страницы
             loadPageData(newPageName)
+
             console.log("Created copy:", newPageName, "from:", originalPageName, "(base:", originalBaseName + ")")
         }
 
@@ -76,7 +77,7 @@ Rectangle {
         }
     }
 
-    // PageLoader с поддержкой layout
+    // Старый PageLoader с новой логикой данных
     PageLoader {
         id: pageLoader
         anchors {
@@ -90,128 +91,24 @@ Rectangle {
             bottomMargin: 10
         }
 
+        // Передаем текущий цвет в PageLoader (старая логика)
         pageColor: tabArea.currentPageColor
+
+        // Новая логика - передаем данные для отображения
         pageData: tabArea.currentPageData
         pageName: tabArea.currentPageName
-        //pageLayout: tabArea.pagesLayoutData[getBasePageName(tabArea.currentPageName)] || {}
-
-        onPageContentChanged: {
-            collectPageData()
-        }
     }
 
-    // Функция для сбора всех данных со страницы
-    function collectPageData() {
-        if (!currentPageData || !currentPageName) return;
-
-        var collectedData = {
-            pageName: currentPageName,
-            basePageName: getBasePageName(currentPageName),
-            timestamp: new Date().toISOString(),
-            items: []
-        };
-
-        var baseName = getBasePageName(currentPageName);
-        var basePageData = pagesData[baseName];
-
-        if (!basePageData || !basePageData.items) {
-            console.log("No base data found for page:", baseName);
-            return;
+    // Старая функция для получения источника страницы
+    function getPageSource(index) {
+        var pageNames = ["Page1", "Page2", "Page3", "Page4"];
+        if (index >= 0 && index < pageNames.length) {
+            return "qrc:/Pages/" + pageNames[index] + ".qml";
         }
-
-        for (var i = 0; i < basePageData.items.length; i++) {
-            var itemConfig = basePageData.items[i];
-            var itemData = collectItemData(itemConfig);
-            if (itemData) {
-                collectedData.items.push(itemData);
-            }
-        }
-
-        console.log("=== COLLECTED PAGE DATA ===");
-        console.log("Page:", currentPageName);
-        console.log("Base Page:", baseName);
-        console.log("Items count:", collectedData.items.length);
-
-        for (var j = 0; j < collectedData.items.length; j++) {
-            var item = collectedData.items[j];
-            console.log("Item", j + 1 + ":", item.name, "=", item.value, "(type:", item.type + ")");
-        }
-
-        console.log("=== END PAGE DATA ===");
-
-        pageDataChanged(currentPageName, collectedData);
+        return "qrc:/Pages/Page1.qml";
     }
 
-    // Функция для сбора данных отдельного элемента
-    function collectItemData(itemConfig) {
-        if (!itemConfig) return null;
-
-        var itemData = {
-            name: itemConfig.name || "",
-            type: itemConfig.type || "",
-            label: itemConfig.label || "",
-            enabled: true,
-            value: ""
-        };
-
-        var component = findComponentByName(itemConfig.name);
-        if (component) {
-            itemData.enabled = component.enabled !== undefined ? component.enabled : true;
-            itemData.value = getComponentValue(component, itemConfig.type);
-        } else {
-            itemData.enabled = itemConfig.enabled !== undefined ? itemConfig.enabled : true;
-            itemData.value = itemConfig.default || "";
-        }
-
-        return itemData;
-    }
-
-    // Функция для поиска компонента по имени
-    function findComponentByName(name) {
-        if (pageLoader && pageLoader.item) {
-            return findChildByName(pageLoader.item, name);
-        }
-        return null;
-    }
-
-    // Рекурсивный поиск по дереву компонентов
-    function findChildByName(parent, name) {
-        if (!parent) return null;
-
-        if (parent.fieldName === name || parent.objectName === name) {
-            return parent;
-        }
-
-        for (var i = 0; i < parent.children.length; i++) {
-            var child = parent.children[i];
-            var found = findChildByName(child, name);
-            if (found) return found;
-        }
-
-        return null;
-    }
-
-    // Функция для получения значения из компонента по его типу
-    function getComponentValue(component, type) {
-        if (!component) return "";
-
-        switch(type) {
-            case "textfield":
-                return component.textInput ? component.textInput.text :
-                       (component.text !== undefined ? component.text : "");
-            case "combobox":
-                return component.currentText !== undefined ? component.currentText :
-                       (component.displayText !== undefined ? component.displayText : "");
-            case "checkbox":
-                return component.checked !== undefined ? component.checked.toString() : "false";
-            case "radiobutton":
-                return component.selectedValue !== undefined ? component.selectedValue : "";
-            default:
-                return "";
-        }
-    }
-
-    // ФУНКЦИИ ДЛЯ РАБОТЫ С ДАННЫМИ
+    // НОВЫЕ ФУНКЦИИ ДЛЯ РАБОТЫ С ДАННЫМИ
 
     // Функция для получения имени страницы по индексу
     function getPageName(index) {
@@ -224,7 +121,7 @@ Rectangle {
         return "Страница " + (index + 1)
     }
 
-    // Функция для получения базового имени страницы
+    // Функция для получения базового имени страницы (без номера копии)
     function getBasePageName(fullPageName) {
         var baseName = fullPageName
         var dashIndex = baseName.indexOf(" - ")
@@ -239,42 +136,16 @@ Rectangle {
         var baseName = getBasePageName(pageName)
 
         if (pagesData[baseName]) {
+            // Используем данные базовой страницы
             currentPageData = JSON.parse(JSON.stringify(pagesData[baseName]))
             currentPageData.pageName = pageName
             currentPageName = pageName
             console.log("Loaded data from base page:", baseName, "for page:", pageName)
-
-            // Сохраняем layout для этой страницы
-            if (currentPageData.layout) {
-                pagesLayoutData[baseName] = currentPageData.layout
-            }
         } else {
-            currentPageData = createEmptyPageData(pageName)
+            // Если данных нет - пустая страница
+            currentPageData = {}
             currentPageName = pageName
-            console.log("No data for page:", pageName, "(base:", baseName + "), created empty page")
-        }
-    }
-
-    // Функция для создания пустой страницы
-    function createEmptyPageData(pageName) {
-        return {
-            pageName: pageName,
-            layout: {
-                columns: 5,
-                rows: 6,
-                cellWidth: 200,
-                cellHeight: 100
-            },
-            items: [
-                {
-                    name: "emptyField",
-                    type: "textfield",
-                    label: "Пустое поле",
-                    enabled: true,
-                    default: "Введите данные",
-                    position: {x: 1, y: 1, width: 1, height: 1}
-                }
-            ]
+            console.log("No data for page:", pageName, "(base:", baseName + ")")
         }
     }
 
@@ -283,6 +154,7 @@ Rectangle {
         var baseName = getBasePageName(originalName)
         var copyNumber = 1
 
+        // Считаем сколько уже есть копий с таким базовым именем
         if (buttonListView.model) {
             for (var i = 0; i < buttonListView.model.count; i++) {
                 var item = buttonListView.model.get(i)
@@ -301,17 +173,21 @@ Rectangle {
         return newName
     }
 
-    // Функция для удаления страницы
+    // Функция для удаления страницы (теперь можно удалять последнюю)
     function deletePage(index) {
         var pageNameToDelete = getPageName(index)
         console.log("Deleting page:", pageNameToDelete, "at index:", index)
 
+        // Удаляем страницу из модели
         buttonListView.model.remove(index)
 
+        // Проверяем, была ли это последняя страница
         if (buttonListView.model.count === 0) {
+            // Если удалили последнюю страницу - очищаем содержимое
             clearContent()
             console.log("Last page deleted - content cleared")
         } else {
+            // Если остались страницы, переключаемся на другую
             if (currentPageName === pageNameToDelete) {
                 var newIndex = Math.min(index, buttonListView.model.count - 1)
                 if (newIndex >= 0) {
@@ -323,14 +199,14 @@ Rectangle {
         }
     }
 
-    // Функция для очистки содержимого
+    // Функция для очистки содержимого при удалении всех страниц
     function clearContent() {
         currentPageData = {}
         currentPageName = ""
         console.log("All pages deleted - content cleared")
     }
 
-    // Функция для создания новой страницы
+    // Функция для создания новой пустой страницы
     function createNewPage() {
         var newPageName = "Новая страница"
         buttonListView.model.append({pageName: newPageName, pageNumber: 1})
@@ -338,120 +214,146 @@ Rectangle {
         console.log("Created new page:", newPageName)
     }
 
-    // ФУНКЦИИ ДЛЯ РАБОТЫ С C++ JSON ПАРСЕРОМ
+    // Инициализация - загружаем данные для существующих страниц
+    Component.onCompleted: {
+        initializePagesData()
 
-    // Функция для инициализации данных страниц из C++ парсера
-    function initializePagesDataFromParser() {
-        pagesData = {}
-        pagesLayoutData = {}
-
-        if (typeof jsonParser !== 'undefined' && jsonParser.pagesData) {
-            var parsedData = jsonParser.pagesData
-
-            // Конвертируем QVariantMap в JS объект
-            for (var key in parsedData) {
-                if (parsedData.hasOwnProperty(key)) {
-                    var pageData = parsedData[key]
-                    if (pageData && pageData.pageName) {
-                        var baseName = getBasePageName(pageData.pageName)
-                        pagesData[baseName] = pageData
-
-                        // Сохраняем layout отдельно
-                        if (pageData.layout) {
-                            pagesLayoutData[baseName] = pageData.layout
-                        }
-
-                        console.log("Loaded page data for:", baseName,
-                                  "items:", pageData.items ? pageData.items.length : 0,
-                                  "layout:", pageData.layout ? "yes" : "no")
-                    }
-                }
-            }
-            console.log("Successfully initialized pages data from C++ parser, total pages:", Object.keys(pagesData).length)
-            return true
+        // Загружаем первую страницу если есть
+        if (buttonListView.model && buttonListView.model.count > 0) {
+            var firstName = getPageName(0)
+            loadPageData(firstName)
         } else {
-            console.log("C++ JSON parser not available or no data")
-            return false
+            // Если страниц нет, очищаем содержимое
+            clearContent()
         }
     }
 
-    // Fallback данные
-    function initializeFallbackPagesData() {
-        pagesData = {
-            "Страница 1 - ADJ": {
-                "pageName": "Страница 1 - ADJ",
+    // Функция инициализации данных страниц
+    function initializePagesData() {
+        pagesData = {}
+
+        var availableData = getAvailablePagesData()
+
+        // Сохраняем данные по базовым именам
+        for (var dataKey in availableData) {
+            var pageData = availableData[dataKey]
+            var baseName = getBasePageName(pageData.pageName)
+            pagesData[baseName] = JSON.parse(JSON.stringify(pageData))
+            console.log("Stored data for base page:", baseName)
+        }
+
+        console.log("Available base pages:", Object.keys(pagesData))
+    }
+
+    // Функция для получения доступных данных страниц
+    function getAvailablePagesData() {
+        return {
+            "page1": {
+                "pageName": "Страница 1 - Основные настройки",
                 "layout": {
-                    "columns": 7,
-                    "rows": 6,
-                    "cellWidth": 288,
-                    "cellHeight": 90
+                    "columns": 6,
+                    "rows": 4,
+                    "cellWidth": 200,
+                    "cellHeight": 80
                 },
                 "items": [
                     {
                         "type": "textfield",
-                        "name": "Курс репитера 0",
-                        "label": "Курс репитера 0",
+                        "name": "deviceName",
+                        "label": "Имя устройства",
+                        "placeholder": "Введите имя устройства",
+                        "default": "NMEA Simulator",
                         "enabled": true,
-                        "position": {"x": 1, "y": 1, "width": 1, "height": 1}
+                        "description": "Уникальное имя устройства",
+                        "position": {"x": 1, "y": 1, "width": 3, "height": 1}
+                    },
+                    {
+                        "type": "group",
+                        "name": "serialGroup",
+                        "label": "Настройки порта",
+                        "enabled": true,
+                        "position": {"x": 1, "y": 2, "width": 3, "height": 2},
+                        "items": [
+                            {
+                                "type": "textfield",
+                                "name": "port",
+                                "label": "Порт",
+                                "placeholder": "COM1, COM2, ...",
+                                "default": "COM1",
+                                "description": "Имя последовательного порта"
+                            },
+                            {
+                                "type": "combobox",
+                                "name": "baudrate",
+                                "label": "Скорость",
+                                "options": ["4800", "9600", "19200", "38400", "57600", "115200"],
+                                "default": "9600",
+                                "description": "Скорость передачи (бод)"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "checkbox",
+                        "name": "enableLogging",
+                        "label": "Логирование",
+                        "default": "true",
+                        "enabled": false,
+                        "description": "Записывать данные в файл",
+                        "position": {"x": 4, "y": 1, "width": 2, "height": 1}
+                    }
+                ]
+            },
+            "page2": {
+                "pageName": "Страница 2 - Сообщения NMEA",
+                "layout": {
+                    "columns": 4,
+                    "rows": 3,
+                    "cellWidth": 250,
+                    "cellHeight": 90
+                },
+                "items": [
+                    {
+                        "type": "group",
+                        "name": "nmeaMessages",
+                        "label": "NMEA сообщения",
+                        "enabled": true,
+                        "position": {"x": 1, "y": 1, "width": 2, "height": 2},
+                        "items": [
+                            {
+                                "type": "checkbox",
+                                "name": "enableGGA",
+                                "label": "GGA",
+                                "default": "true",
+                                "description": "Фиксированные данные о местоположении"
+                            },
+                            {
+                                "type": "checkbox",
+                                "name": "enableRMC",
+                                "label": "RMC",
+                                "default": "true",
+                                "description": "Рекомендуемые минимальные данные GPS"
+                            },
+                            {
+                                "type": "checkbox",
+                                "name": "enableGLL",
+                                "label": "GLL",
+                                "default": "false",
+                                "description": "Данные о широте и долготе"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "textfield",
+                        "name": "updateRate",
+                        "label": "Частота обновления",
+                        "placeholder": "секунды",
+                        "default": "1",
+                        "enabled": true,
+                        "description": "Интервал между сообщениями",
+                        "position": {"x": 3, "y": 1, "width": 1, "height": 1}
                     }
                 ]
             }
         }
-        console.log("Initialized fallback pages data")
-    }
-
-    // Инициализация
-    Component.onCompleted: {
-        console.log("TabArea component completed")
-
-        // ИНИЦИАЛИЗИРУЕМ ДАННЫЕ ИЗ C++ ПАРСЕРА
-        var success = initializePagesDataFromParser()
-        if (!success) {
-            console.log("Failed to initialize from C++ parser, using fallback data")
-            initializeFallbackPagesData()
-        }
-
-        // Создаем страницы на основе данных из JSON
-        var pageNames = getAvailablePageNames()
-        if (pageNames.length > 0) {
-            // Создаем вкладки для каждой страницы из JSON
-            for (var i = 0; i < pageNames.length; i++) {
-                var pageName = pageNames[i]
-                buttonListView.model.append({pageName: pageName, pageNumber: 1})
-                console.log("Created tab for page:", pageName)
-            }
-
-            // Загружаем первую страницу
-            var firstName = getPageName(0)
-            loadPageData(firstName)
-            console.log("Initial page loaded:", firstName)
-        } else {
-            // Создаем пустую страницу если нет данных
-            createNewPage()
-            console.log("No pages in JSON, created default page")
-        }
-
-        // Подключаем сигнал сбора данных
-        pageDataChanged.connect(function(pageName, data) {
-            console.log("Page data changed for:", pageName);
-        });
-    }
-
-    // Функция для получения списка доступных страниц из JSON
-    function getAvailablePageNames() {
-        var names = []
-        for (var key in pagesData) {
-            if (pagesData.hasOwnProperty(key) && pagesData[key].pageName) {
-                names.push(pagesData[key].pageName)
-            }
-        }
-        return names
-    }
-
-    // Функция для создания новой страницы с указанным именем
-    function createNewPageWithName(pageName) {
-        buttonListView.model.append({pageName: pageName, pageNumber: 1})
-        loadPageData(pageName)
-        console.log("Created new page:", pageName)
     }
 }

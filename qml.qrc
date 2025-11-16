@@ -24,9 +24,5 @@
         <file>scrollBarArea/GridLayoutContainer.qml</file>
         <file>scrollBarArea/GroupItem.qml</file>
         <file>scrollBarArea/SingleItem.qml</file>
-        <file>Items/JsonComponents/RadioButtonComponent.qml</file>
-        <file>scrollBarArea/CustomCheckBox.qml</file>
-        <file>Items/JsonComponents/TextFieldComponentWithoutText.qml</file>
-        <file>Items/JsonComponents/BaseCustomTabAreaComponent/BaseCustomTabAreaComponent.qml</file>
     </qresource>
 </RCC>

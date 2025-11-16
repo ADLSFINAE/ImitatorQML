@@ -2,8 +2,9 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include "source/PortItem/backend.h"
-#include "source/JsonMessagesParser/Library/datacontroller.h"
-#include "source/JsonMessagesParser/Library/jsonparser.h"
+
+#include "source/JsonMessagesParser/jsonmodel.h"
+#include "source/JsonMessagesParser/uimodel.h"
 
 #include <QDebug>
 
@@ -12,21 +13,16 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
 
-    QQmlApplicationEngine engine;
-
-    DataController dataController;
-
+    JsonParserModel jsonParserModel;
+    DisplayModel displayModel;
     Backend backend;
 
-    JsonParser jsonParser;
+    QQmlApplicationEngine engine;
 
-    engine.rootContext()->setContextProperty("dataController", &dataController);
+    // Регистрируем C++ объект в QML
     engine.rootContext()->setContextProperty("backend", &backend);
-    engine.rootContext()->setContextProperty("jsonParser", &jsonParser);
-
-    jsonParser.loadFromFile(":/JsonDocuments/example.json");
-
-    qmlRegisterType<DataController>("DataController", 1, 0, "DataController");
+    engine.rootContext()->setContextProperty("jsonParserModel", &jsonParserModel);
+    engine.rootContext()->setContextProperty("displayModel", &displayModel);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

@@ -8,9 +8,6 @@ BaseItem {
     itemTitle: "Порты"
 
     property int rowCount: 0
-    property int selectedPortIndex: -1
-    property int selectedBaudRateIndex: -1
-    property bool portOpen: false
 
     Row {
         anchors.fill: parent
@@ -69,13 +66,10 @@ BaseItem {
         Column {
             width: portItem.width - 20
             height: parent.height
-            spacing: 5
 
-            // Контейнер для портов с динамической высотой
             Rectangle {
-                id: portsContainer
                 width: parent.width
-                height: parent.height - 60 // Оставляем место для кнопок
+                height: 70
                 color: "#252525"
 
                 ListModel {
@@ -91,10 +85,8 @@ BaseItem {
                         model: comboBoxModel
                         clip: true
                         spacing: 5
-                        implicitHeight: contentHeight
 
                         delegate: PortRow {
-                            width: listView.width
                             rowIndex: index
                             portIndex: model.portIndex
                             baudRateIndex: model.baudRateIndex
@@ -114,104 +106,13 @@ BaseItem {
                                     comboBoxModel.setProperty(index, "portIndex", portIndex)
                                     comboBoxModel.setProperty(index, "baudRateEnabled", true)
                                     comboBoxModel.setProperty(index, "deleteEnabled", true)
-
-                                    // Обновляем выбранный порт
-                                    if (portIndex !== -1) {
-                                        portItem.selectedPortIndex = portIndex
-                                    }
                                 }
                             }
 
                             onBaudRateChanged: {
                                 if (index >= 0 && index < comboBoxModel.count) {
                                     comboBoxModel.setProperty(index, "baudRateIndex", baudRateIndex)
-
-                                    // Обновляем выбранную скорость
-                                    if (baudRateIndex !== -1) {
-                                        portItem.selectedBaudRateIndex = baudRateIndex
-                                    }
                                 }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Контейнер для кнопок
-            Column {
-                width: parent.width
-                height: 55
-                spacing: 5
-
-                // Кнопка для открытия/закрытия порта
-                Button {
-                    width: parent.width
-                    height: 25
-                    text: portOpen ? "Закрыть порт" : "Открыть порт"
-                    enabled: selectedPortIndex !== -1 && selectedBaudRateIndex !== -1
-
-                    background: Rectangle {
-                        color: parent.enabled ? (portOpen ? "#FF4444" : "#44FF44") : "#666666"
-                        radius: 3
-                    }
-
-                    contentItem: Text {
-                        text: parent.text
-                        color: "white"
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                        font.pointSize: 8
-                    }
-
-                    onClicked: {
-                        if (!portOpen) {
-                            // Открываем порт
-                            var portName = backend.availablePorts[selectedPortIndex]
-                            var baudRate = parseInt(backend.getBaudRates()[selectedBaudRateIndex])
-
-                            if (backend.openPort(portName, baudRate)) {
-                                portOpen = true
-                                console.log("Port opened:", portName, "with baud rate:", baudRate)
-                            }
-                        } else {
-                            // Закрываем порт
-                            backend.closePort()
-                            portOpen = false
-                            console.log("Port closed")
-                        }
-                    }
-                }
-
-                // Кнопка для отправки тестовых данных
-                Button {
-                    width: parent.width
-                    height: 25
-                    text: "Отправить тестовые данные"
-                    enabled: portOpen
-
-                    background: Rectangle {
-                        color: parent.enabled ? "#4444FF" : "#666666"
-                        radius: 3
-                    }
-
-                    contentItem: Text {
-                        text: parent.text
-                        color: "white"
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                        font.pointSize: 8
-                    }
-
-                    onClicked: {
-                        if (portOpen) {
-                            // Отправляем тестовую NMEA строку
-                            var testData = "$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47\r\n" + backend.shitten.toString()
-                            if (backend.sendData(testData)) {
-                                console.log("Test data sent successfully")
-                                // Обновляем индикатор внизу окна
-                                downIndicatorRightText.text = "Данные отправлены: " + testData.length + " символов"
-                            } else {
-                                console.log("Failed to send test data")
                             }
                         }
                     }
@@ -228,20 +129,5 @@ BaseItem {
             "deleteEnabled": false
         })
         rowCount = 1
-    }
-
-    // Обработчики сигналов от backend
-    Connections {
-        target: backend
-        function onDataSent(data) {
-            console.log("Data sent to port:", data)
-            // Обновляем индикатор внизу окна
-            downIndicatorRightText.text = "Данные отправлены: " + data.length + " символов"
-        }
-
-        function onErrorOccurred(error) {
-            console.log("Port error:", error)
-            portOpen = false
-        }
     }
 }
